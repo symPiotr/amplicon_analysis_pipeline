@@ -42,7 +42,7 @@ More info at [https://www.drive5.com/usearch/](https://www.drive5.com/usearch/).
   
   
 ### 6. Our custom scripts
-Our pipeline uses simple Python scripts for manipulating the output of some tools so that it is suitable as input to other tools. You should have access through "/mnt/matrix/symbio/bin". Alternatively, you may want to upload them somewhere where they can be executed!
+Our pipeline uses simple Python scripts for manipulating the output of some tools so that it is suitable as input to other tools. You should have access through "/mnt/matrix/symbio/bin". Alternatively, you may want to upload the scripts somewhere where they can be executed.
 * [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py)  
   
   
