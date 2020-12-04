@@ -39,3 +39,10 @@ USEARCH is a powerful, popular versatile tool for amplicon data analysis.
 More info at [https://www.drive5.com/usearch/](https://www.drive5.com/usearch/).   
   
   
+### 6. Our custom scripts
+You may want to place these simple scripts somewhere where they can be executed!
+* [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py)  
+  
+  
+### 7. R, qiime1
+_... to be written ..._
