@@ -29,15 +29,19 @@ The sequences are or will soon be listed in the file [amplicon_sequences.txt](am
 ### Section 2. Ensuring that you have access to the necessary software
 _... work in progress! ..._  
 
-Before getting started on any analyses, make sure that you have all the necessary software in your PATH:  
+Before getting started on any analyses, make sure that you have access to all the necessary software.  
+If you work on the Institute cluster, you should have access as long as you have "/mnt/matrix/symbio/bin" in your PATH, and especially once you have activated "symbio" conda environment. Specifically, you want to be able to use:  
+  
 * pear  
 * usearch  
 * vsearch  
-* script [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py)  
+* custom script [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py)  
 * qiime1  
 * R  
-If you type these commands while on the cluster, you should be getting responses clearly distinct from *command not found*!  
-In most cases, this should be the case (at least, as long as you work on the Institute cluster) once you have activated "symbio" conda environment, and have "/mnt/matrix/symbio/bin" in your PATH. But if not, check [instructions for setting up the necessary software](software_instructions.md)!  
+
+If you type these commands while on the cluster, you should be getting responses clearly distinct from ***command not found***! :stuck_out_tongue_winking_eye:  
+But if not, check [instructions for setting up the necessary software](software_instructions.md)!  
+
   
 
 ### Section 3. The overview of the amplicon analysis pipeline
