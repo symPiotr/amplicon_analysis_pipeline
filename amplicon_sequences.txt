@@ -1,0 +1,13 @@
+### In this file, I listed sequences expected in our amplicon libraries ###
+
+### 1. Template-specific primers routinely used for the library preparation:
+#region_name	#R1_primer_sequence	#R2_primer_sequence
+COI-BF3BR2      CCHGAYATRGCHTTYCCHCG    TCDGGRTGNCCRAARAAYCA
+16S-V4	GTGYCAGCMGCCGCGGTAA	GGACTACNVGGGTWTCTAAT
+16S-V1V2  AGMGTTYGATYMTGGCTCAG  TGCTGCCTCCCGTAGGAGT
+ITS2  GTGARTCATCGAATCTTTG  CCTCCGCTTATTGATATGC
+ITS1a  TGGTCATTTAGAGGAAGTAA  GCGTTCTTCATCGAT  [previously referred to as ITS5.8]
+
+#### And these are regions that we amplified before, but not any more! Keeping them here just in case!
+# ITS1	TGGTCATTTAGAGGAAGTAA	GCTGCGTTCTTCATCGATGC
+# 16S-V3V4  CCTACGGGNGGCWGCAG  GACTACHVGGGTATCTAATCC
