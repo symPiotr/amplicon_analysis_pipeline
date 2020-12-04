@@ -23,8 +23,9 @@ R1: [VariableLengthInsert][Forward_Primer][Sequence of interest ..............]\
 R2: [VariableLengthInsert][Reverse_Primer][Sequence of interest ..............]\
     Note: We are currently using variable length inserts of 0 to 3 bp only for COI and 16S-v4 targets!
 
-The sequences are / will be listed in the file [amplicon_sequences.txt](amplicon_sequences.txt).
-\
+The sequences are or will soon be listed in the file [amplicon_sequences.txt](amplicon_sequences.txt).  
+  
+  
 ### Section 2. Ensuring that you have access to the necessary software
 _... work in progress! ..._
 check if you have all softwares installed (pear, usearch, add_values_to_zOTU_fasta.py and qiime1)
