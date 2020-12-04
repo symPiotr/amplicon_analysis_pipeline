@@ -7,11 +7,10 @@ Most of the key steps described below will be described in separate documents wi
   
 To follow these steps effectively, you should have basic familiarity with the Unix command line and sequence analysis.  
   
+&nbsp;  
   
   
 ### Section 1. The overview of our amplicon sequencing data
-_... work in progress! ..._  
-
 Most of our libraries comprise a mix of amplicons for five targets expected in insects:
 * Insect cytochrome oxidase I (COI) gene    [length: ~418 bp, plus primers]
 * Bacterial 16S rRNA v4 and v1-v2 regions   [length: ~253 bp or ~300 bp, plus primers]
@@ -25,7 +24,9 @@ R2: [VariableLengthInsert][Reverse_Primer][Sequence of interest ..............]\
 
 The sequences are or will soon be listed in the file [amplicon_sequences.txt](amplicon_sequences.txt).  
   
-  
+&nbsp;  
+
+
 ### Section 2. Ensuring that you have access to the necessary software
 
 Before getting started on any analyses, make sure that you have access to all the necessary software.  
