@@ -43,7 +43,8 @@ While on the cluster, if you type the names of these commands into the terminal,
   
 But if not, check [instructions for setting up the necessary software](software_instructions.md)!  
 
-  
+&nbsp;  
+
 
 ### Section 3. The overview of the amplicon analysis pipeline
 Our current bioinformatic pipeline follows these steps:  
@@ -62,7 +63,9 @@ Our current bioinformatic pipeline follows these steps:
   
 The recommended  details of these steps, for different targets, are provided below!  
   
+&nbsp;  
   
+
 ### Section 4. Where is the data? How to break it up?
 By default, the Symbiosis Evolution Group amplicon sequencing data are copied to the shared space on the computing cluster: **/mnt/matrix/symbio/raw_data**. For each of the sequencing runs, we have a dedicated directory with the name that includes the date when sequencing took place. Within each of the directories, we have files corresponding to the forward and reverse read (R1 & R2) for each of the libraries included in that lane. Typically, the first character of the file name represents one of the "projects" grouping samples from a single experiment.  
 ```
@@ -95,10 +98,15 @@ These data are generally available within **/mnt/matrix/symbio/split_data** fold
 Details of the splitting script and approach will soon be available at [https://github.com/symPiotr/split_amplicon_libs](https://github.com/symPiotr/split_amplicon_libs).  
 **Library splitting is the first key step of our pipeline: you want to be analyzing data for each of the targets separately. Until the pipeline is available, please talk to Piotr!**  
     
+&nbsp;  
   
-### Section 5. The analysis of bacterial 16S rRNA amplicon data
-_... to be written ..._  
 
+### Section 5. The analysis of bacterial 16S rRNA amplicon data
+_... work in progress ..._  
+
+    
+&nbsp;  
+  
 
 ### Section 6. The analysis of COI amplicon data
 _... to be written ..._  
