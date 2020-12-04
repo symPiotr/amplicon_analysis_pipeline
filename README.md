@@ -30,14 +30,13 @@ The sequences are or will soon be listed in the file [amplicon_sequences.txt](am
 _... work in progress! ..._  
 
 Before getting started on any analyses, make sure that you have all the necessary software in your PATH:  
-    * pear  
-    * usearch  
-    * vsearch  
-    * script [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py)  
-    * qiime1  
-    * R  
-  
-If you type these commands while on the cluster, you should be getting responses clearly distinct from "command not found"!  
+* pear  
+* usearch  
+* vsearch  
+* script [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py)  
+* qiime1  
+* R  
+If you type these commands while on the cluster, you should be getting responses clearly distinct from *command not found*!  
 In most cases, this should be the case (at least, as long as you work on the Institute cluster) once you have activated "symbio" conda environment, and have "/mnt/matrix/symbio/bin" in your PATH. But if not, check [instructions for setting up the necessary software](software_instructions.txt)!  
   
 
