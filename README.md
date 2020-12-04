@@ -10,7 +10,7 @@ To follow these steps effectively, you should have basic familiarity with the Un
 
 
 ### Section 1. The overview of our amplicon sequencing data
-_... work in progress! ..._\
+_... work in progress! ..._  
 
 Most of our libraries comprise a mix of amplicons for five targets expected in insects:
 * Insect cytochrome oxidase I (COI) gene    [length: ~418 bp, plus primers]
@@ -30,7 +30,7 @@ _... work in progress! ..._
 check if you have all softwares installed (pear, usearch, add_values_to_zOTU_fasta.py and qiime1)
 
 ### Section 3. The overview of the amplicon analysis pipeline
-... to be completed ...
+... to be completed ...  
 
 
 ### Section 4. Where is the data? Preliminary analyses.
