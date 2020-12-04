@@ -19,7 +19,7 @@ Most of our libraries comprise a mix of amplicons for five targets expected in i
 The libraries are sequenced on Illumina in 250bp paired-end or 300bp paired-end modes, resulting in reads with the following organization:
 
 R1: [VariableLengthInsert][Forward_Primer][Sequence of interest ..............]\
-R2: [VariableLengthInsert][Reverse_Primer][Sequence of interest ..............]
+R2: [VariableLengthInsert][Reverse_Primer][Sequence of interest ..............]\
     Note: We are currently using variable length inserts of 0 to 3 bp only for COI and 16S-v4 targets!
 
 The sequences will be listed separately!
