@@ -37,7 +37,7 @@ Before getting started on any analyses, make sure that you have all the necessar
 * qiime1  
 * R  
 If you type these commands while on the cluster, you should be getting responses clearly distinct from *command not found*!  
-In most cases, this should be the case (at least, as long as you work on the Institute cluster) once you have activated "symbio" conda environment, and have "/mnt/matrix/symbio/bin" in your PATH. But if not, check [instructions for setting up the necessary software](software_instructions.txt)!  
+In most cases, this should be the case (at least, as long as you work on the Institute cluster) once you have activated "symbio" conda environment, and have "/mnt/matrix/symbio/bin" in your PATH. But if not, check [instructions for setting up the necessary software](software_instructions.md)!  
   
 
 ### Section 3. The overview of the amplicon analysis pipeline
