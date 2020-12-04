@@ -11,6 +11,7 @@ To follow these steps effectively, you should have basic familiarity with the Un
 
 ### Section 1. The overview of our amplicon sequencing data
 _... work in progress! ..._\
+
 Most of our libraries comprise a mix of amplicons for five targets expected in insects:
 * Insect cytochrome oxidase I (COI) gene    [length: ~418 bp, plus primers]
 * Bacterial 16S rRNA v4 and v1-v2 regions   [length: ~253 bp or ~300 bp, plus primers]
@@ -23,8 +24,7 @@ R2: [VariableLengthInsert][Reverse_Primer][Sequence of interest ..............]\
     Note: We are currently using variable length inserts of 0 to 3 bp only for COI and 16S-v4 targets!
 
 The sequences are / will be listed in the file [amplicon_sequences.txt](amplicon_sequences.txt).
-
-
+\
 ### Section 2. Ensuring that you have access to the necessary software
 _... work in progress! ..._
 check if you have all softwares installed (pear, usearch, add_values_to_zOTU_fasta.py and qiime1)
