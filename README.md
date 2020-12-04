@@ -1,4 +1,4 @@
-# The recommended Symbiosis Evolution Group amplicon analysis workflow
+# Symbiosis Evolution Group - the recommended amplicon analysis workflow
 Here we provide the details of the custom amplicon data analysis workflow developed in December 2020 by Diego Castillo Franco, Michał Kolasa and Piotr Łukasik.
 We recommended this pipeline for the use by the Symbiosis Evolution Group at the Institute of Environmental Sciences of Jagiellonian University.
 The instructions are primarily intended for group members and associates, especially those who work on one of the institutional computing clusters - but we intend to make them broadly accessible.
@@ -9,7 +9,7 @@ To follow these steps effectively, you should have basic familiarity with the Un
 
 
 
-## Section 1. The overview of our amplicon sequencing data
+### Section 1. The overview of our amplicon sequencing data
 ...
 
 
