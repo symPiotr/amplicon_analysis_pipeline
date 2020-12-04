@@ -59,7 +59,7 @@ Our current bioinformatic pipeline follows these steps:
 * Assign taxonomy to your zOTUs.  
 * OTU picking and chimera removal using zOTUs as input.  
 * Compute OTU table.  
-* Data interpretation, visualization, diversity analyses...  
+* Data interpretation, visualization, diversity analyses... a complicated piece that will be developed!  
   
 The recommended  details of these steps, for different targets, are provided below!  
   
@@ -83,9 +83,10 @@ total 8436000
 -r--r--r-- 1 piotr.lukasik symbio   5205965 Sep 29 15:05 A-CRYFAG1_S55_L001_R2_001.fastq.gz
 ```  
   
-Information about the nature of the samples is generally available within the Symbiosis Evolution Group's SharePoint "Methods" folders. We are working on consolidating the sample info into a database... Again, work in progress!  
+Information about the nature of the samples is generally available within the Symbiosis Evolution Group's SharePoint "Methods" folders. We are working on consolidating the sample info into a database.  
+&nbsp;  
   
-Piotr has developed a script that breaks up the amplicon sequencing datasets into batches corresponding to different targets, so that instead of the original \*\_R1_* and \*\_R2_* file for each sample we get several pairs of files corresponding to different amplification targets. For example, instead of a single \*\_R1_* file for the sample "W_377" in one of the recent runs, we have five files:  
+You may not be accessing these raw data often. **The first step in our pipeline comprises breaking up amplicon sequencing datasets into batches corresponding to different targets.** That way, instead of the original \*\_R1.fastq.gz and \*\_R2.fastq.gz files, for each sample we get several pairs of files corresponding to different amplification targets. For example, instead of a single \*\_R1_* file for the sample "W_377" in one of the recent runs, we have five files:  
 ```
 piotr.lukasik@fsm:~/splitting/split$ ls -lh *_W_377_R1*
 -rw-r--r-- 1 piotr.lukasik users 2.2M Sep 30 10:43 16S-V1V2_W_377_R1.fastq
@@ -94,22 +95,26 @@ piotr.lukasik@fsm:~/splitting/split$ ls -lh *_W_377_R1*
 -rw-r--r-- 1 piotr.lukasik users  81K Sep 30 10:43 ITS2_W_377_R1.fastq
 -rw-r--r-- 1 piotr.lukasik users 410K Sep 30 10:43 ITS1a_W_377_R1.fastq
 ```  
-These data are generally available within **/mnt/matrix/symbio/split_data** folder... but we have been much less consistent about this.  
+These split data are generally available within **/mnt/matrix/symbio/split_data** folder, but until the script is freely available, you'll want to make sure that this is the case. **Please talk to Piotr!**  
+  
 Details of the splitting script and approach will soon be available at [https://github.com/symPiotr/split_amplicon_libs](https://github.com/symPiotr/split_amplicon_libs).  
-**Library splitting is the first key step of our pipeline: you want to be analyzing data for each of the targets separately. Until the pipeline is available, please talk to Piotr!**  
+ 
     
 &nbsp;  
   
-
-### Section 5. The analysis of bacterial 16S rRNA amplicon data
-_... work in progress ..._  
-
-    
-&nbsp;  
   
-
 ### Section 6. The analysis of COI amplicon data
 _... to be written ..._  
+You probably want to start amplicon data analyses for a new batch of insects from checking the COI amplicons. These data
+    
+&nbsp;  
+  
+
+
+### Section 5. The analysis of bacterial 16S rRNA amplicon data
+With 
+
+The fully annotated analysis steps and commands are available at [16S_rRNA_workflow.md](16S_rRNA_workflow.md).  
 
 
 ### Section 7. The analysis of fungal ITS amplicon data
