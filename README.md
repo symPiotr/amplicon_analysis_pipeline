@@ -52,19 +52,14 @@ _... work in progress! ..._
 ### Section 4. Where is the data? Preliminary analyses.
 _... work in progress ..._  
   
-By default, the Symbiosis Evolution Group amplicon sequencing data are copied to the shared space on the computing cluster: **/mnt/matrix/symbio/raw_data**. For each of the sequencing runs, we have a dedicated directory with the name that includes the sequencing run's date. Within each of the directories, we have files corresponding to the forward and reverse read (R1 & R2) for each of the libraries included in that lane. Typically, the first character of the file name represents one of the "projects" grouping samples from a single experiment.  
+By default, the Symbiosis Evolution Group amplicon sequencing data are copied to the shared space on the computing cluster: **/mnt/matrix/symbio/raw_data**. For each of the sequencing runs, we have a dedicated directory with the name that includes the date when sequencing took place. Within each of the directories, we have files corresponding to the forward and reverse read (R1 & R2) for each of the libraries included in that lane. Typically, the first character of the file name represents one of the "projects" grouping samples from a single experiment.  
 ```
-piotr.lukasik@fsm:~$ ls -l /mnt/matrix/symbio/raw_data/ | head
+piotr.lukasik@fsm:~$ ls -l /mnt/matrix/symbio/raw_data/ | head -5
 total 896
 dr-xr-xr-x  3 piotr.lukasik symbio  32768 Nov  7  2019 20191008_Pilot_IBA_MiSeq
 dr-xr-xr-x  3 piotr.lukasik symbio  32768 Dec 19  2019 20191109_MiSeq_first_run
 dr-xr-xr-x  3 piotr.lukasik symbio  40960 Feb 19  2020 20191127_MiSeq_2nd_run
 dr-xr-xr-x  2 piotr.lukasik symbio  53248 Mar 19  2020 20200316_MiSeq_3rd
-dr-xr-xr-x  2 piotr.lukasik symbio  53248 Apr  6  2020 20200324_MiSeq_rerun
-dr-xr-xr-x  2 piotr.lukasik symbio  45056 May 22  2020 20200519_Miseq
-dr-xr-xr-x  2 piotr.lukasik symbio 159744 Dec  4 20:22 20200730_MiSeq
-dr-xr-xr-x  2 piotr.lukasik symbio 122880 Dec  4 20:18 20200830_MiSeq
-dr-xr-xr-x  2 piotr.lukasik symbio 147456 Sep 29 15:08 20200924_MiSeq
 piotr.lukasik@fsm:~$ ls -l /mnt/matrix/symbio/raw_data/20200924_MiSeq | head -5
 total 8436000
 -r--r--r-- 1 piotr.lukasik symbio   7601229 Sep 29 15:05 A-CIXPIL_S44_L001_R1_001.fastq.gz
@@ -75,8 +70,19 @@ total 8436000
   
 Information about the nature of the samples is generally available within the Symbiosis Evolution Group's SharePoint "Methods" folders. We are working on consolidating the sample info into a database... Again, work in progress!  
   
-
-
+Piotr has developed a script that breaks up the amplicon sequencing datasets into batches corresponding to different targets, so that instead of the original \*\_R1_* and \*\_R2_* file for each sample we get several pairs of files corresponding to different amplification targets. For example, instead of a single \*\_R1_* file for the sample "W_377" in one of the recent runs, we have five files:  
+```
+piotr.lukasik@fsm:~/splitting/split$ ls -lh *_W_377_R1*
+-rw-r--r-- 1 piotr.lukasik users 2.2M Sep 30 10:43 16S-V1V2_W_377_R1.fastq
+-rw-r--r-- 1 piotr.lukasik users 5.1M Sep 30 10:43 16S-v4_W_377_R1.fastq
+-rw-r--r-- 1 piotr.lukasik users 1.2M Sep 30 10:43 COI-BF3BR2_W_377_R1.fastq
+-rw-r--r-- 1 piotr.lukasik users  81K Sep 30 10:43 ITS2_W_377_R1.fastq
+-rw-r--r-- 1 piotr.lukasik users 410K Sep 30 10:43 ITS1a_W_377_R1.fastq
+```  
+These data are generally available within **/mnt/matrix/symbio/split_data** folder... but we have been much less consistent about this.  
+Details of the splitting script will soon be available at [https://github.com/symPiotr/split_amplicon_libs](https://github.com/symPiotr/split_amplicon_libs).  
+  
+  
 ### Section 5. The analysis of bacterial 16S rRNA amplicon data
 _... to be written ..._  
 
