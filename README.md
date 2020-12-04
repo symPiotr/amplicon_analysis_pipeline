@@ -45,13 +45,24 @@ But if not, check [instructions for setting up the necessary software](software_
   
 
 ### Section 3. The overview of the amplicon analysis pipeline
-_... work in progress! ..._  
-
-
-
-### Section 4. Where is the data? Preliminary analyses.
-_... work in progress ..._  
+Our current bioinformatic pipeline follows these steps:  
+* Split up the amplicon libraries into datasets corresponding to different targets. Each of them will be analyzed separately.  
+* For all libraries in your experiment, for your chosen target (COI or 16S rRNA), assemble reads into contigs. The procedure is somewhat different for ITS.
+* Quality-filter contigs, rename them.  
+* Trim primers from contigs.  
+* Dereplicate data: identify groups of identical sequences, pick representatives.  
+* Sort reads by size, remove singletons.  
+* Denoise data - identify error-free genotypes (= ASVs, zOTUs).  
+* Compute zOTU table - check how many times each of the zOTUs is found in each of the libraries.  
+* Assign taxonomy to your zOTUs.  
+* OTU picking and chimera removal using zOTUs as input.  
+* Compute OTU table.  
+* Data interpretation, visualization, diversity analyses...  
   
+The recommended  details of these steps, for different targets, are provided below!  
+  
+  
+### Section 4. Where is the data? How to break it up?
 By default, the Symbiosis Evolution Group amplicon sequencing data are copied to the shared space on the computing cluster: **/mnt/matrix/symbio/raw_data**. For each of the sequencing runs, we have a dedicated directory with the name that includes the date when sequencing took place. Within each of the directories, we have files corresponding to the forward and reverse read (R1 & R2) for each of the libraries included in that lane. Typically, the first character of the file name represents one of the "projects" grouping samples from a single experiment.  
 ```
 piotr.lukasik@fsm:~$ ls -l /mnt/matrix/symbio/raw_data/ | head -5
@@ -80,8 +91,9 @@ piotr.lukasik@fsm:~/splitting/split$ ls -lh *_W_377_R1*
 -rw-r--r-- 1 piotr.lukasik users 410K Sep 30 10:43 ITS1a_W_377_R1.fastq
 ```  
 These data are generally available within **/mnt/matrix/symbio/split_data** folder... but we have been much less consistent about this.  
-Details of the splitting script will soon be available at [https://github.com/symPiotr/split_amplicon_libs](https://github.com/symPiotr/split_amplicon_libs).  
-  
+Details of the splitting script and approach will soon be available at [https://github.com/symPiotr/split_amplicon_libs](https://github.com/symPiotr/split_amplicon_libs).  
+**Library splitting is the first key step of our pipeline: you want to be analyzing data for each of the targets separately. Until the pipeline is available, please talk to Piotr!**  
+    
   
 ### Section 5. The analysis of bacterial 16S rRNA amplicon data
 _... to be written ..._  
