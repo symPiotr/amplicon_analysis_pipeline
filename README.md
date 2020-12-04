@@ -39,7 +39,8 @@ If you work on the Institute cluster, you should have access as long as you have
 * qiime1  
 * R  
 
-If you type these commands while on the cluster, you should be getting responses clearly distinct from ***command not found***! :stuck_out_tongue_winking_eye:  
+While on the cluster, if you type the names of these commands into the terminal, you should be getting responses clearly distinct from ***command not found***! :stuck_out_tongue_winking_eye:  
+  
 But if not, check [instructions for setting up the necessary software](software_instructions.md)!  
 
   
