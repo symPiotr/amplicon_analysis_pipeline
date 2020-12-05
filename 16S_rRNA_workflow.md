@@ -1,5 +1,6 @@
 # 16S rRNA amplicon data analysis - recommended workflow
-This pipeline assumes that you will start with amplicon data for 16S rRNA V4 region (16S-V4_SampleName_R1.fastq & 16S-V4_SampleName_R2.fastq for each of your experimental sample), or alternatively V1-V2 region, extracted from the original dataset using the approach described in [README](README.md).  
+This pipeline starts with raw amplicon data for 16S rRNA V4 region, or alternatively V1-V2 region (16S-V4_SampleName_R1.fastq & 16S-V4_SampleName_R2.fastq for each sample). It is assumed that the data were extracted from the original multi-target amplicon data using the approach described in [README](README.md): only read pairs where both the forward and the reverse read contained error-free primer sequences were extracted.  
+&nbsp;  
   
   
 ### Setting up work space
@@ -7,26 +8,28 @@ Start from copying all files to your working directory:
 ```
 cp SourceDirectory/16S-V4*fastq WorkingDirectory/`  
 ```    
-Before proceeding, consider simplifying file names. For example, perhaps you can now remove the "16S-v4_P_" portion of the file names? But before committing, ensure that your *rename* command works!
+Before proceeding, consider simplifying file names. For example, perhaps you can remove the "16S-v4_P_" portion of the file names, using *rename* command or another approach? When using *rename*, make sure that the command works before committing!
 ```
 rename -n 's/16S-v4_P_//' *fastq
 rename -f 's/16S-v4_P_//' *fastq
 ```
-
+&nbsp;  
+  
+  
 ### Assembling paired-end reads using PEAR
-
-
-
-
-### read the manual and choose the best options for your dataset, includins read size
-
-
-pear -f *R1_001.fastq.gz -r *R2_001.fastq.gz -o sample_name -n 250 -q 30 -b 33 -j 20
-
-
-### execute pear on all files using a unix "while" loop ---
-ls *R1* | sed 's/_R1.fastq//g' > sample.names
-while read name; do pear -f "$name"_R1.fastq -r "$name"_R2.fastq -o "$name" -n 250 -q 30 -b 33 -j 40; done < sample.names
+For 16S-V4 and 16S-V1+V2 regions, forward and reverse reads largely overlap. We start from assembling them into contigs. This needs to be done for every sample in the dataset.  
+The recommended tool is **PEAR** [https://cme.h-its.org/exelixis/web/software/pear/](https://cme.h-its.org/exelixis/web/software/pear/), a versatile, efficient and popular paired-end read merger. Read the [manual](https://cme.h-its.org/exelixis/web/software/pear/doc.html) and choose the best options for your dataset, includins read size!  
+  
+The syntax that should work for 16S-V4 and 16S-V1+V2 reads is  
+```
+pear -f SampleName_R1.fastq -r SampleName_R2.fastq -o SampleName -v 15 -n 250 -m 400 -q 30 -j 20
+```  
+   
+You want to execute this on all the pairs of fastq files in your experiment. There are multiple ways of going about this. One of the possibilities is (1) gathering all SampleNames in your working directory and saving them to a file; and (2) using "while" loop for executing pear using all SampleNames:  
+```
+ls *R1* | sed 's/_R1.fastq//g' > Sample.Names
+while read SampleName; do pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -n 250 -m 400 -q 30 -j 20; done < Sample.Names
+```  
 
 ### remove all useless files (unassembled, discarded, etc)
 
