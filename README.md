@@ -11,26 +11,26 @@ To follow these steps effectively, you should have basic familiarity with the Un
   
   
 ### Section 1. The overview of our amplicon sequencing data
-Most of our libraries comprise a mix of amplicons for five targets expected in insects:
+Most of our libraries comprise a mix of amplicons for five targets expected in insects:  
 * Insect cytochrome oxidase I (COI) gene    [length: ~418 bp, plus primers]
 * Bacterial 16S rRNA v4 and v1-v2 regions   [length: ~253 bp or ~300 bp, plus primers]
 * Fungal ITS1 and ITS2 regions              [highly variable length]
 
-The libraries are sequenced on Illumina in 250bp paired-end or 300bp paired-end modes, resulting in reads with the following organization:
-
+The libraries are sequenced on Illumina in 250bp paired-end or 300bp paired-end modes, resulting in reads with the following organization:  
+  
 R1: [VariableLengthInsert][Forward_Primer][Sequence of interest ..............]\
 R2: [VariableLengthInsert][Reverse_Primer][Sequence of interest ..............]\
-    Note: We are currently using variable length inserts of 0 to 3 bp only for COI and 16S-v4 targets!
-
+&nbsp;&nbsp;&nbsp;&nbsp;Note: We are currently using variable length inserts of 0 to 3 bp only for COI and 16S-v4 targets!  
+  
 The sequences are or will soon be listed in the file [amplicon_sequences.txt](amplicon_sequences.txt).  
   
 &nbsp;  
 
 
-### Section 2. Ensuring that you have access to the necessary software
-
+### Section 2. Setting up working environment
 Before getting started on any analyses, make sure that you have access to all the necessary software.  
-If you work on the Institute cluster, you should have access as long as you have "/mnt/matrix/symbio/bin" in your PATH, and especially once you have activated "symbio" conda environment. Specifically, you want to be able to use:  
+If you work on the Institute cluster, you should have access as long as you have "/mnt/matrix/symbio/bin" in your PATH.  
+It may also help to activate "symbio" conda environment. Specifically, you want to be able to use:  
   
 * pear  
 * usearch  
@@ -46,22 +46,20 @@ But if not, check [instructions for setting up the necessary software](software_
 &nbsp;  
 
 
-### Section 3. The overview of the amplicon analysis pipeline
+### Section 3. The key steps in the amplicon analysis pipeline
 Our current bioinformatic pipeline follows these steps:  
 * Split up the amplicon libraries into datasets corresponding to different targets. Each of them will be analyzed separately.  
 * For all libraries in your experiment, for your chosen target (COI or 16S rRNA), assemble reads into contigs. The procedure is somewhat different for ITS.
-* Quality-filter contigs, rename them.  
-* Trim primers from contigs.  
-* Dereplicate data: identify groups of identical sequences, pick representatives.  
-* Sort reads by size, remove singletons.  
-* Denoise data - identify error-free genotypes (= ASVs, zOTUs).  
-* Compute zOTU table - check how many times each of the zOTUs is found in each of the libraries.  
+* Quality-filter contigs, rename them, trim primers and any flanking sequences.
+* Dereplicate data: identify groups of identical sequences, pick representatives. Remove singletons.
+* Denoise data - identify error-free genotypes (= ASVs, zOTUs). Compute zOTU table - check how many times each of the zOTUs is found in each of the libraries.  
 * Assign taxonomy to your zOTUs.  
-* OTU picking and chimera removal using zOTUs as input.  
-* Compute OTU table.  
+* Identify and remove chimeras, pick OTUs, compute OTU table.
+* Template quantification using spike-ins
+* Filter reagent contaminants
 * Data interpretation, visualization, diversity analyses... a complicated piece that will be developed!  
   
-The recommended  details of these steps, for different targets, are provided below!  
+The outline of these steps is provided below. In most cases, you will be directed to detailed pipelines. At least, that's the plan.
   
 &nbsp;  
   
@@ -102,32 +100,40 @@ Details of the splitting script and approach will soon be available at [https://
     
 &nbsp;  
   
+
+### Section 5. The analysis of bacterial 16S rRNA and insect COI amplicon data: from raw sequences, through ASVs, to OTU tables.
+This is the core portion of the workflow.  
   
-### Section 6. The analysis of COI amplicon data
-_... to be written ..._  
-You probably want to start amplicon data analyses for a new batch of insects from checking the COI amplicons. These data
+The fully annotated analysis steps and commands are available at [16S_rRNA_and COI_amplicon_workflow.md](16S_rRNA_and COI_amplicon_workflow.md).  
+  
+Soon, you will find here exact sets of commands that have been successfully used with real data!  
     
 &nbsp;  
   
 
-
-### Section 5. The analysis of bacterial 16S rRNA amplicon data
-With 
-
-The fully annotated analysis steps and commands are available at [16S_rRNA_workflow.md](16S_rRNA_workflow.md).  
-
-
-### Section 7. The analysis of fungal ITS amplicon data
+### Section 6. The analysis of fungal ITS amplicon data
 _... to be written ..._  
+    
+&nbsp;  
+  
 
-
-### Section 8. Template quantification using spike-ins
+### Section 7. Template quantification using spike-ins
 _... to be written ..._  
+    
+&nbsp;  
+  
 
+### Section 8. Detection and filtering of reagent contamination
+_... to be written ..._  
+    
+&nbsp;  
+  
 
 ### Section 9. Follow-up analyses and data visualization
 _... to be written ..._  
-
+    
+&nbsp;  
+  
 
 ### Section 10. Data submission to public repositories
 _... to be written ..._  
