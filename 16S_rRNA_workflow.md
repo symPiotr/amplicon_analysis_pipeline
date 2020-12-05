@@ -38,9 +38,9 @@ mkdir reads && mv *_R?.fastq reads/
 ```
 &nbsp;  
   
-### Filtering, trimming, and cleaning up contigs
-At this point, we want to convert contigs from FASTQ to FASTA format, merge them, trim primers, and remove all contigs with incorrect primers or well outside of the expected length.  
-
+### Conversion from FASTQ to FASTA
+At this point, we want to convert contigs from FASTQ to FASTA format, and merge files for different samples.  
+  
 First, we use VSEARCH to convert fastq to fasta, and at the same time, rename all contigs following the format "SampleName_1, SampleName_2, ..." . Basic syntax:  
 ```
 vsearch -fastq_filter SampleName.fastq -fastaout SampleName.fasta -relabel SampleName_ -fasta_width 0; done
@@ -48,40 +48,43 @@ vsearch -fastq_filter SampleName.fastq -fastaout SampleName.fasta -relabel Sampl
   
 Again, we can use **basename** command inside a **"for"** loop to do this for all fastq files in our working directory:  
 ```
-for file in *fastq; do SampleName=`basename $file .fastq`; vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel $SampleName_ -fasta_width 0; done
+for file in *fastq; do SampleName=`basename $file .fastq`; vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel "$SampleName"_ -fasta_width 0; done
 ```  
   
 Now, let's merge all the resulting fasta files into one. And then move them out of the way... for example, like this ---  
 ```
 mkdir contigs
 for file in *fasta; do cat $file >> all_samples.fasta; mv $file contigs/; done
+mv *fastq contigs/
 ```  
+&nbsp;  
   
-Now, we want to trim primers.  
+
+#### Primer trimming and size filtering
+Now, we want to trim primers and remove all contigs with incorrect primers or well outside of the expected length.   
+  
 How?  
-Think about the organizations of our contigs:
+  
+Think about the organizations of our contigs:  
 \[VariableLengthInsert] \[Forward_Primer] \[**Sequence_of_interest_of_approximately_known_length**] \[Reverse-complemented_Reverse_Primer] \[VariableLengthInsert]  
+  
 For V4, that should be: ??? GTGYCAGCMGCCGCGGTAA **Sequence_of_interest_of_253bp_approx** ATTAGAWACCCBNGTAGTCC ???  
 For V1-V2.............: AGMGTTYGATYMTGGCTCAG **Sequence_of_interest_of_300bp_approx** ACTCCTACGGGAGGCAGCA (no variable-length inserts in this case!).  
-We want to keep only the middle bit. One complication about doing the trimming is [ambiguous positions - degenerate bases in primer sequences](https://www.bioinformatics.org/sms/iupac.html). Another is that the contig sequence is broken up across many lines.
-
-
-
-
-### Primer trimming. 
-### This example is for V4 primers (variable lenght)
-sed -E 's/.{0,10}GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.{0,10}//' all_samples.fasta > all_samples_trimmed.fasta
-
-
+  
+We want to keep only the middle portion... and only when it is of the correct length! We can use Regular Expressions and **grep** + **sed** to combine size filtering and primer trimming.  
+The fact that the sequence in fasta format is often broken up across many lines could be a challenge... but we've taken care of that in the previous step (parameter -fasta_width)!. Another challenge could be degenerate bases in primer sequences... but they follow [IUPAC codes](https://www.bioinformatics.org/sms/iupac.html) and we can easily convert degenerate bases (for example Y or M), into search terms (\[TC], \[AC]). Now would you construct REGEX search terms to capture the primers and variable-length inserts at the same time?  
+  
+Here, I am using **grep** to only extract the sequences with correct primer seqs and correct length, and then **sed** to trim the primers and any inserts from V4 contigs:  
+```
+egrep -B 1 "GTG[TC]CAGC[CA]GCCGCGGTAA.{250,260}ATTAGA[AT]ACCC[CGT][ACGT]GTAGTCC" all_samples.fasta | sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//' > all_samples_trimmed.fasta
+```  
+&nbsp;  
+  
+  
 #### Dereplicate data - pick representative sequences
-vsearch --derep_fulllength all_samples_trimmed.fasta --output all_samples_derep.fasta -sizeout -uc all_samples_derep_info.txt
+At this step, we are using VSEARCH to identify unique s
 
-
-######!!! 
-vsearch --maxseqlength 260 --minseqlength 250 --output all_samples_derep_filtered.fasta
-vsearch -fastq_minlen 250 
- 
- 
+vsearch -derep_fulllength all_samples_trimmed.fasta -output all_samples_derep.fasta -sizeout -uc all_samples_derep_info.txt
  
 ##Sort by size and singletons removal
 vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fasta -minsize 2
