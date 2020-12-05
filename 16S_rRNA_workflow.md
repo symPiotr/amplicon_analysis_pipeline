@@ -20,29 +20,27 @@ rename -f 's/16S-v4_P_//' *fastq
 For 16S-V4 and 16S-V1+V2 regions, forward and reverse reads largely overlap. We start from assembling them into contigs. This needs to be done for every sample in the dataset.  
 The recommended tool is **PEAR** [https://cme.h-its.org/exelixis/web/software/pear/](https://cme.h-its.org/exelixis/web/software/pear/), a versatile, efficient and popular paired-end read merger. Read the [manual](https://cme.h-its.org/exelixis/web/software/pear/doc.html) and choose the best options for your dataset, includins read size!  
   
-The syntax that should work for 16S-V4 and 16S-V1+V2 reads is  
+The geenral syntax that should work for 2x250 bp or 2x300 bp paired-end reads for 16S-V4 and 16S-V1+V2 region is:
 ```
 pear -f SampleName_R1.fastq -r SampleName_R2.fastq -o SampleName -v 15 -n 250 -m 400 -q 30 -j 20
 ```  
    
-You want to execute this on all the pairs of fastq files in your experiment. There are multiple ways of going about this. One of the possibilities is (1) gathering all SampleNames in your working directory and saving them to a file; and (2) using "while" loop for executing pear using all SampleNames:  
+You want to execute this on all the pairs of fastq files in your experiment. One of many possible ways of doing this is (1) gathering all SampleNames and saving them to a file; and (2) using "while" loop to feed all these SampleNames to PEAR, in a single command:  
 ```
 ls *R1* | sed 's/_R1.fastq//g' > Sample.Names
 while read SampleName; do pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -n 250 -m 400 -q 30 -j 20; done < Sample.Names
 ```  
-
-### remove all useless files (unassembled, discarded, etc)
-
+  
+After executing PEAR, you may want to clean up in your working directory: remove *unassembled* and *discarded* files, rename *assembled* files, and move the original R1 and R2 reads to a separate folder:
+```
 rm *unassembled*
 rm *discarded*
-
-### rename pear output
 rename -n 's/.assembled//' *fastq
 rename -f 's/.assembled//' *fastq
-
-### move original reada out of the way
 mkdir reads && mv *_R?.fastq reads/
-
+```
+&nbsp;  
+  
 ### In this step is possible to increase quality filters but you will lose sequences, in this case I avoided because we are working with a low number of sequences.
 ###Fastq to fasta convertion
 for i in `ls *fastq`; do bn=`basename $i .fastq`; vsearch -fastq_filter $bn.fastq -fastaout $bn.fasta --fastq_maxlen 310 -relabel $bn._; done
