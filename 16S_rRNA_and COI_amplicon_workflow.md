@@ -1,5 +1,9 @@
-# 16S rRNA amplicon data analysis - recommended workflow
-This pipeline starts with raw amplicon data for 16S rRNA V4 region, or alternatively V1-V2 region (16S-V4_SampleName_R1.fastq & 16S-V4_SampleName_R2.fastq for each sample). It is assumed that the data were extracted from the original multi-target amplicon data using the approach described in [README](README.md): only read pairs where both the forward and the reverse read contained error-free primer sequences were extracted.  
+# 16S rRNA and COI amplicon data analysis
+This pipeline starts with raw amplicon data for bacterial 16S rRNA V4 region, or V1-V2 region, or alternatively, for insect cytochrome oxidase I (COI). It is assumed that the data were extracted from the original multi-target amplicon data using the approach described in [README](README.md): only read pairs where both the forward and the reverse read contained error-free primer sequences were extracted. For each sample/target, you should be starting with two files, for example 16S-V4_SampleName_R1.fastq & 16S-V4_SampleName_R2.fastq.  
+  
+To follow this protocol, you should have basic familiarity with Unix command line and sequence analysis, and motivation to learn more!  
+  
+  
 &nbsp;  
   
   
@@ -17,7 +21,7 @@ rename -f 's/16S-v4_P_//' *fastq
   
   
 ### Assembling paired-end reads using PEAR
-For 16S-V4 and 16S-V1+V2 regions, forward and reverse reads largely overlap. We start from assembling them into contigs. This needs to be done for every sample in the dataset.  
+For 16S-V4, 16S-V1+V2, or COI-BF3BR2 regions, forward and reverse reads largely overlap. We start from assembling them into contigs. This needs to be done for every sample in the dataset.  
 The recommended tool is **PEAR** [https://cme.h-its.org/exelixis/web/software/pear/](https://cme.h-its.org/exelixis/web/software/pear/), a versatile, efficient and popular paired-end read merger. Read the [manual](https://cme.h-its.org/exelixis/web/software/pear/doc.html) and choose the best options for your dataset, includins read size!  
   
 The geenral syntax that should work for 2x250 bp or 2x300 bp paired-end reads for 16S-V4 and 16S-V1+V2 region is:
@@ -76,7 +80,8 @@ Think about the organizations of our contigs:
 \[VariableLengthInsert] \[Forward_Primer] \[**Sequence_of_interest**] \[Reverse-complemented_Reverse_Primer] \[VariableLengthInsert]  
   
 For V4, that should be: ??? GTGYCAGCMGCCGCGGTAA **Sequence_of_interest_of_approx_253bp** ATTAGAWACCCBNGTAGTCC ???  
-For V1-V2.............: AGMGTTYGATYMTGGCTCAG **Sequence_of_interest_of_approx_300bp** ACTCCTACGGGAGGCAGCA (no variable-length inserts in this case!).  
+For V1-V2: AGMGTTYGATYMTGGCTCAG **Sequence_of_interest_of_approx_300bp** ACTCCTACGGGAGGCAGCA (no variable-length inserts in this case!).  
+For COI: ??? CCHGAYATRGCHTTYCCHCG **Sequence_of_interest_of_approx_418bp** TGRTTYTTYGGNCAYCCHG ???  
   
 We want to keep only the middle portion... and only when it is of the correct length! We can use Regular Expressions and **grep** + **sed** to combine size filtering and primer trimming.  
 The fact that the sequence in fasta format is often broken up across many lines could be a challenge... but we've taken care of that in the previous step (parameter -fasta_width)!. Another challenge could be degenerate bases in primer sequences... but they follow [IUPAC codes](https://www.bioinformatics.org/sms/iupac.html) and we can easily convert degenerate bases (for example Y or M), into search terms (\[TC], \[AC]). Now would you construct REGEX search terms to capture the primers and variable-length inserts at the same time?  
@@ -98,16 +103,22 @@ vsearch -derep_fulllength all_samples_trimmed.fasta -output all_samples_derep.fa
 Then, the genotypes are sorted by abundance, and singletons removed.  
 ```
 vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fasta -minsize 2
-```  
+```
+  
 &nbsp;  
   
   
 ### Denoising
+We want to apply algorithm
 usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout unoise3.txt
  
 Make zOTU table
 usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table_wo_tax.txt
 
+  
+&nbsp;  
+  
+  
 ### Assign taxonomy
 conda activate qiime1
 parallel_assign_taxonomy_blast.py -i zotus.fasta -o assign_taxonomy_asv -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt
