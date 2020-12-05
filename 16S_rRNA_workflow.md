@@ -25,28 +25,47 @@ The geenral syntax that should work for 2x250 bp or 2x300 bp paired-end reads fo
 pear -f SampleName_R1.fastq -r SampleName_R2.fastq -o SampleName -v 15 -n 250 -m 400 -q 30 -j 20
 ```  
    
-You want to execute this on all the pairs of fastq files in your experiment. One of many possible ways of doing this is (1) gathering all SampleNames and saving them to a file; and (2) using "while" loop to feed all these SampleNames to PEAR, in a single command:  
+You want to execute this on all the pairs of fastq files in your experiment. You can do it in many ways. For example, you can use **basename** command inside a **"for"** loop to extract all sample names and pass them on to PEAR, all in a single line:
 ```
-ls *R1* | sed 's/_R1.fastq//g' > Sample.Names
-while read SampleName; do pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -n 250 -m 400 -q 30 -j 20; done < Sample.Names
+for file in *_R1.fastq; do SampleName=`basename $file _R1.fastq`; pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -n 250 -m 400 -q 30 -j 20; done
 ```  
   
 After executing PEAR, you may want to clean up in your working directory: remove *unassembled* and *discarded* files, rename *assembled* files, and move the original R1 and R2 reads to a separate folder:
 ```
-rm *unassembled*
-rm *discarded*
-rename -n 's/.assembled//' *fastq
+rm *unassembled* *discarded*
 rename -f 's/.assembled//' *fastq
 mkdir reads && mv *_R?.fastq reads/
 ```
 &nbsp;  
   
-### In this step is possible to increase quality filters but you will lose sequences, in this case I avoided because we are working with a low number of sequences.
-###Fastq to fasta convertion
-for i in `ls *fastq`; do bn=`basename $i .fastq`; vsearch -fastq_filter $bn.fastq -fastaout $bn.fasta --fastq_maxlen 310 -relabel $bn._; done
+### Filtering, trimming, and cleaning up contigs
+At this point, we want to convert contigs from FASTQ to FASTA format, merge them, trim primers, and remove all contigs with incorrect primers or well outside of the expected length.  
 
-###joining all libraries into one fasta files
-cat ~/*fasta > all_samples.fasta
+First, we use VSEARCH to convert fastq to fasta, and at the same time, rename all contigs following the format "SampleName_1, SampleName_2, ..." . Basic syntax:  
+```
+vsearch -fastq_filter SampleName.fastq -fastaout SampleName.fasta -relabel SampleName_ -fasta_width 0; done
+```  
+  
+Again, we can use **basename** command inside a **"for"** loop to do this for all fastq files in our working directory:  
+```
+for file in *fastq; do SampleName=`basename $file .fastq`; vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel $SampleName_ -fasta_width 0; done
+```  
+  
+Now, let's merge all the resulting fasta files into one. And then move them out of the way... for example, like this ---  
+```
+mkdir contigs
+for file in *fasta; do cat $file >> all_samples.fasta; mv $file contigs/; done
+```  
+  
+Now, we want to trim primers.  
+How?  
+Think about the organizations of our contigs:
+\[VariableLengthInsert] \[Forward_Primer] \[**Sequence_of_interest_of_approximately_known_length**] \[Reverse-complemented_Reverse_Primer] \[VariableLengthInsert]  
+For V4, that should be: ??? GTGYCAGCMGCCGCGGTAA **Sequence_of_interest_of_253bp_approx** ATTAGAWACCCBNGTAGTCC ???  
+For V1-V2.............: AGMGTTYGATYMTGGCTCAG **Sequence_of_interest_of_300bp_approx** ACTCCTACGGGAGGCAGCA (no variable-length inserts in this case!).  
+We want to keep only the middle bit. One complication about doing the trimming is [ambiguous positions - degenerate bases in primer sequences](https://www.bioinformatics.org/sms/iupac.html). Another is that the contig sequence is broken up across many lines.
+
+
 
 
 ### Primer trimming. 
