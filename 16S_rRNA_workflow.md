@@ -25,12 +25,15 @@ The geenral syntax that should work for 2x250 bp or 2x300 bp paired-end reads fo
 pear -f SampleName_R1.fastq -r SampleName_R2.fastq -o SampleName -v 15 -n 250 -m 400 -q 30 -j 20
 ```  
    
-You want to execute this on all the pairs of fastq files in your experiment. You can do it in many ways. For example, you can use **basename** command inside a **"for"** loop to extract all sample names and pass them on to PEAR, all in a single line:
+You want to execute this on all the pairs of fastq files in your experiment. You can do it in many ways. For example, you can use **basename** command inside a **"for"** loop to extract all sample names and pass them on to PEAR, all in a single step:
 ```
-for file in *_R1.fastq; do SampleName=`basename $file _R1.fastq`; pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -n 250 -m 400 -q 30 -j 20; done
+for file in *_R1.fastq; do
+    SampleName=`basename $file _R1.fastq`
+    pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -n 250 -m 400 -q 30 -j 20
+done
 ```  
   
-After executing PEAR, you may want to clean up in your working directory: remove *unassembled* and *discarded* files, rename *assembled* files, and move the original R1 and R2 reads to a separate folder:
+After executing PEAR, you may want to clean up your working directory: remove *unassembled* and *discarded* files, rename *assembled* files, and move the original R1 and R2 reads to a separate folder:
 ```
 rm *unassembled* *discarded*
 rename -f 's/.assembled//' *fastq
@@ -38,17 +41,21 @@ mkdir reads && mv *_R?.fastq reads/
 ```
 &nbsp;  
   
+  
 ### Conversion from FASTQ to FASTA
 At this point, we want to convert contigs from FASTQ to FASTA format, and merge files for different samples.  
   
 First, we use VSEARCH to convert fastq to fasta, and at the same time, rename all contigs following the format "SampleName_1, SampleName_2, ..." . Basic syntax:  
 ```
-vsearch -fastq_filter SampleName.fastq -fastaout SampleName.fasta -relabel SampleName_ -fasta_width 0; done
+vsearch -fastq_filter SampleName.fastq -fastaout SampleName.fasta -relabel SampleName_ -fasta_width 0
 ```  
   
 Again, we can use **basename** command inside a **"for"** loop to do this for all fastq files in our working directory:  
 ```
-for file in *fastq; do SampleName=`basename $file .fastq`; vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel "$SampleName"_ -fasta_width 0; done
+for file in *fastq; do
+    SampleName=`basename $file .fastq`
+    vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel "$SampleName"_ -fasta_width 0
+done
 ```  
   
 Now, let's merge all the resulting fasta files into one. And then move them out of the way... for example, like this ---  
@@ -60,39 +67,45 @@ mv *fastq contigs/
 &nbsp;  
   
 
-#### Primer trimming and size filtering
+### Primer trimming and size filtering
 Now, we want to trim primers and remove all contigs with incorrect primers or well outside of the expected length.   
   
 How?  
   
 Think about the organizations of our contigs:  
-\[VariableLengthInsert] \[Forward_Primer] \[**Sequence_of_interest_of_approximately_known_length**] \[Reverse-complemented_Reverse_Primer] \[VariableLengthInsert]  
+\[VariableLengthInsert] \[Forward_Primer] \[**Sequence_of_interest**] \[Reverse-complemented_Reverse_Primer] \[VariableLengthInsert]  
   
-For V4, that should be: ??? GTGYCAGCMGCCGCGGTAA **Sequence_of_interest_of_253bp_approx** ATTAGAWACCCBNGTAGTCC ???  
-For V1-V2.............: AGMGTTYGATYMTGGCTCAG **Sequence_of_interest_of_300bp_approx** ACTCCTACGGGAGGCAGCA (no variable-length inserts in this case!).  
+For V4, that should be: ??? GTGYCAGCMGCCGCGGTAA **Sequence_of_interest_of_approx_253bp** ATTAGAWACCCBNGTAGTCC ???  
+For V1-V2.............: AGMGTTYGATYMTGGCTCAG **Sequence_of_interest_of_approx_300bp** ACTCCTACGGGAGGCAGCA (no variable-length inserts in this case!).  
   
 We want to keep only the middle portion... and only when it is of the correct length! We can use Regular Expressions and **grep** + **sed** to combine size filtering and primer trimming.  
 The fact that the sequence in fasta format is often broken up across many lines could be a challenge... but we've taken care of that in the previous step (parameter -fasta_width)!. Another challenge could be degenerate bases in primer sequences... but they follow [IUPAC codes](https://www.bioinformatics.org/sms/iupac.html) and we can easily convert degenerate bases (for example Y or M), into search terms (\[TC], \[AC]). Now would you construct REGEX search terms to capture the primers and variable-length inserts at the same time?  
   
 Here, I am using **grep** to only extract the sequences with correct primer seqs and correct length, and then **sed** to trim the primers and any inserts from V4 contigs:  
 ```
-egrep -B 1 "GTG[TC]CAGC[CA]GCCGCGGTAA.{250,260}ATTAGA[AT]ACCC[CGT][ACGT]GTAGTCC" all_samples.fasta | sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//' > all_samples_trimmed.fasta
+egrep -B 1 "GTG[TC]CAGC[CA]GCCGCGGTAA.{250,260}ATTAGA[AT]ACCC[CGT][ACGT]GTAGTCC" all_samples.fasta |
+sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//' > all_samples_trimmed.fasta
 ```  
 &nbsp;  
   
   
-#### Dereplicate data - pick representative sequences
-At this step, we are using VSEARCH to identify unique s
-
+### Dereplicate data - pick representative sequences
+Now, we are using VSEARCH to identify unique genotypes, and pick representative.  
+```
 vsearch -derep_fulllength all_samples_trimmed.fasta -output all_samples_derep.fasta -sizeout -uc all_samples_derep_info.txt
- 
-##Sort by size and singletons removal
+```  
+  
+Then, the genotypes are sorted by abundance, and singletons removed.  
+```
 vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fasta -minsize 2
- 
-###Denoising
+```  
+&nbsp;  
+  
+  
+### Denoising
 usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout unoise3.txt
  
-##Make zOTU table
+Make zOTU table
 usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table_wo_tax.txt
 
 ### Assign taxonomy
