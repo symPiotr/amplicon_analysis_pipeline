@@ -59,7 +59,7 @@ Our current bioinformatic pipeline follows these steps:
 * Filter reagent contaminants
 * Data interpretation, visualization, diversity analyses... a complicated piece that will be developed!  
   
-The outline of these steps is provided below. In most cases, you will be directed to detailed pipelines. At least, that's the plan.
+The outline of these steps is provided below. In most cases, you will be directed to detailed pipelines. At least, that's the plan :stuck_out_tongue: 
   
 &nbsp;  
   
