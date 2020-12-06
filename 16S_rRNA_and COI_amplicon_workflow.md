@@ -65,8 +65,8 @@ done
 Now, let's merge all the resulting fasta files into one. And then move them out of the way... for example, like this ---  
 ```
 mkdir contigs
-for file in *fasta; do cat $file >> all_samples.fasta; mv $file contigs/; done
-mv *fastq contigs/
+cat *fasta > all_samples.fasta
+mv *fast? contigs/ && mv contigs/all_samples.fasta .
 ```  
 &nbsp;  
   
@@ -121,7 +121,14 @@ usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table_wo_ta
   
 &nbsp;  
   
+&nbsp;  
   
+&nbsp;  
+  
+  
+.......  from here, it is work in progress! Alternative ways of assigning taxonomy? Alternative ways of merging tables? ........  
+  
+
 ### Assign taxonomy
 conda activate qiime1
 parallel_assign_taxonomy_blast.py -i zotus.fasta -o assign_taxonomy_asv -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt
