@@ -109,14 +109,15 @@ vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fa
   
   
 ### Denoising
-At this step, we want to use USEARCH's UNOISE algorithm for denoising our data: the identification of error-free genotypes (= zOTUs, ASVs) and assigning sequences with errors to these genotypes:
+At this step, we want to use USEARCH's UNOISE algorithm for denoising our data: the identification of unique error-free genotypes (= zOTUs, ASVs) and merging  sequences with errors with these genotypes:  
 ```
 usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout unoise3.txt
 ```  
   
-Now, lets ake zOTU table
+Now, lets make zOTU table, with information on how many times each of the zOTUs occurred in each of the libraries:  
+```
 usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table_wo_tax.txt
-
+```  
   
 &nbsp;  
   
