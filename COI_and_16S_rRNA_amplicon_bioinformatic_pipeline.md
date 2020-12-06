@@ -86,9 +86,9 @@ For COI: ??? CCHGAYATRGCHTTYCCHCG **Sequence_of_interest_of_approx_418bp** TGRTT
 We want to keep only the middle portion... and only when it is of the correct length! We can use Regular Expressions and **grep** + **sed** to combine size filtering and primer trimming.  
 The fact that the sequence in fasta format is often broken up across many lines could be a challenge... but we've taken care of that in the previous step (parameter -fasta_width)!. Another challenge could be degenerate bases in primer sequences... but they follow [IUPAC codes](https://www.bioinformatics.org/sms/iupac.html) and we can easily convert degenerate bases (for example Y or M), into search terms (\[TC], \[AC]). Now would you construct REGEX search terms to capture the primers and variable-length inserts at the same time?  
   
-Here, I am using **grep** to only extract the sequences with correct primer seqs and correct length, and then **sed** to trim the primers and any inserts from V4 contigs:  
+Here, I am using **grep** to only extract the sequences with correct primer seqs and correct length, followed by another **grep** that excludes lines with two dashes (possibly inserted by the first instance of grep, depending on the version), and then **sed** to trim the primers and any inserts from V4 contigs. 
 ```
-egrep -B 1 "GTG[TC]CAGC[CA]GCCGCGGTAA.{250,260}ATTAGA[AT]ACCC[CGT][ACGT]GTAGTCC" all_samples.fasta |
+egrep -B 1 "GTG[TC]CAGC[CA]GCCGCGGTAA.{250,260}ATTAGA[AT]ACCC[CGT][ACGT]GTAGTCC" all_samples.fasta | egrep -v "^\-\-$" |
 sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//' > all_samples_trimmed.fasta
 ```  
 &nbsp;  
@@ -109,45 +109,57 @@ vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fa
   
   
 ### Denoising
-At this step, we want to use USEARCH's UNOISE algorithm for denoising our data: the identification of unique error-free genotypes (= zOTUs, ASVs) and merging  sequences with errors with these genotypes:  
+At this step, we want to use USEARCH's UNOISE algorithm for denoising our data: the identification of unique error-free genotypes (= zOTUs, ASVs), merging sequences with errors with these genotypes, and identification and removal of chimeric sequences.
 ```
 usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout unoise3.txt
 ```  
   
-Now, lets make zOTU table, with information on how many times each of the zOTUs occurred in each of the libraries:  
+Now, lets make zOTU table, containing information on how many times each of the zOTUs occurred in each of the libraries:  
 ```
 usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table_wo_tax.txt
 ```  
   
 &nbsp;  
   
-&nbsp;  
-  
-&nbsp;  
-  
-  
-.......  from here, it is work in progress! Alternative ways of assigning taxonomy? Alternative ways of merging tables? ........  
-  
-
 ### Assign taxonomy
-conda activate qiime1
-parallel_assign_taxonomy_blast.py -i zotus.fasta -o assign_taxonomy_asv -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt
+------ Work in progress!!! ------
 
-###Add size to zotu
-add_values_to_zOTU_fasta.py zotu_table_wo_tax.txt zotus.fasta
+At this step, we want to compare zOTU sequences against a curated database in order to obtain IDs. As in the previous cases, there are several ways to go about this. At the moment, we do not have a solution that is perfect... but this is work in progress!
 
-
- 
+&nbsp;  
+During the last week's workshop, for 16S-V4 data, it was recommended to use **parallel_assign_taxonomy_blast.py** script from qiime1 package. The problem for unusual datasets, such as insect microbiome samples, is that the tool provides the top blast hit for every sequence even when that hit is not very close at all... Then, you do want to be careful about the interpretation!
+```
+conda activate qiime1  
+parallel_assign_taxonomy_blast.py -i zotus.fasta -o assign_taxonomy_asv -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt  
+```   
+  
+Here is another suboptimal approach: searching the sequences against the Ribosomal Database Project's (RDP) 16S rRNA training set, with plasmid spike-in sequences added, using **usearch sintax** tool. However, that dataset comprises primarily (exclusively?) cultured bacteria, and it doesn't do a good job classifying Wolbachia or other insect symbionts...
+```
+usearch -sintax zotus.fasta -db /mnt/matrix/symbio/db/RDP_16S_Trainsets/rdp_16s_v16_spikeins.fa -tabbedout zotus_tax.txt -strand both -sintax_cutoff 0.5
+```  
+  
+Once you combine the zOTU table and the taxonomy, you should have quite a good sense of the diversity in your sample. In fact, many pipelines stop at this stage.  
+  
+&nbsp;  
+  
 ### OTU picking and chimeras removal using ASV as input
 
+Add information about the number of sequences corresponding to each zOTU to \"**zotus.fasta**". For the subsequent steps to go as planned, that information need to be provided in a specific format... For now, Piotr wrote a lightweight script that takes two previously generated files --- **zotu_table_wo_tax.txt** and **zotus.fasta** --- and exports a new file, **new_zotus.fasta**, with the required info.
+```
+add_values_to_zOTU_fasta.py zotu_table_wo_tax.txt zotus.fasta
+```  
+  
+Now, let's use usearch to do the clustering ....  
+```
 usearch -sortbysize new_zotus.fasta -fastaout new_zotus_sorted.fasta -minsize 2  
-  
 usearch -cluster_otus new_zotus_sorted.fasta -otus all_samples_otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationship.txt  
-  
 usearch -usearch_global all_samples.fasta -db all_samples_otus.fasta -strand plus -id 0.97 -otutabout otu_table_wo_tax.txt  
+```
   
+And taxonomy. Will get back to this later.  
+```
 parallel_assign_taxonomy_blast.py -i all_samples_otus.fasta -o assign_taxonomy_otu -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt   
-
+```
 
 
 
