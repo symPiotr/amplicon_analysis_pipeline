@@ -95,7 +95,7 @@ sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//
   
   
 ### Dereplicate data - pick representative sequences
-Now, we are using VSEARCH to identify unique genotypes, and pick representative.  
+Now, we are using VSEARCH to identify unique genotypes, and pick representative sequences.  
 ```
 vsearch -derep_fulllength all_samples_trimmed.fasta -output all_samples_derep.fasta -sizeout -uc all_samples_derep_info.txt
 ```  
@@ -109,10 +109,12 @@ vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fa
   
   
 ### Denoising
-We want to apply algorithm
+At this step, we want to use USEARCH's UNOISE algorithm for denoising our data: the identification of error-free genotypes (= zOTUs, ASVs) and assigning sequences with errors to these genotypes:
+```
 usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout unoise3.txt
- 
-Make zOTU table
+```  
+  
+Now, lets ake zOTU table
 usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table_wo_tax.txt
 
   
@@ -130,13 +132,13 @@ add_values_to_zOTU_fasta.py zotu_table_wo_tax.txt zotus.fasta
  
 ### OTU picking and chimeras removal using ASV as input
 
-usearch -sortbysize new_zotus.fasta -fastaout new_zotus_sorted.fasta -minsize 2
-
-usearch -cluster_otus new_zotus_sorted.fasta -otus all_samples_otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationship.txt
-
-usearch -usearch_global all_samples.fasta -db all_samples_otus.fasta -strand plus -id 0.97 -otutabout otu_table_wo_tax.txt
-
-parallel_assign_taxonomy_blast.py -i all_samples_otus.fasta -o assign_taxonomy_otu -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt
+usearch -sortbysize new_zotus.fasta -fastaout new_zotus_sorted.fasta -minsize 2  
+  
+usearch -cluster_otus new_zotus_sorted.fasta -otus all_samples_otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationship.txt  
+  
+usearch -usearch_global all_samples.fasta -db all_samples_otus.fasta -strand plus -id 0.97 -otutabout otu_table_wo_tax.txt  
+  
+parallel_assign_taxonomy_blast.py -i all_samples_otus.fasta -o assign_taxonomy_otu -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt   
 
 
 
