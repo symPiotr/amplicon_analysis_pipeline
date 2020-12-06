@@ -104,7 +104,7 @@ Details of the splitting script and approach will soon be available at [https://
 ### Section 5. The analysis of bacterial 16S rRNA and insect COI amplicon data: from raw sequences, through ASVs, to OTU tables.
 This is the core portion of the workflow.  
   
-The fully annotated analysis steps and commands are available at [test.md](16S_rRNA_and COI_amplicon_workflow.md) and [test.md](16S_rRNA_and COI_amplicon_workflow.md).  
+The fully annotated analysis steps and commands are available at [COI_and_16S_rRNA_amplicon_bioinformatic_pipeline.md](COI_and_16S_rRNA_amplicon_bioinformatic_pipeline.md).  
   
 Soon, you will find here sets of commands that have been successfully used with real data!  
     
