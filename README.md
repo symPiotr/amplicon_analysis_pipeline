@@ -12,14 +12,14 @@ To follow these steps effectively, you should have basic familiarity with the Un
   
 ### Section 1. The overview of our amplicon sequencing data
 Most of our libraries comprise a mix of amplicons for five targets expected in insects:  
-* Insect cytochrome oxidase I (COI) gene    [length: ~418 bp, plus primers]
-* Bacterial 16S rRNA v4 and v1-v2 regions   [length: ~253 bp or ~300 bp, plus primers]
-* Fungal ITS1 and ITS2 regions              [highly variable length]
+* Insect cytochrome oxidase I (COI) gene    \[length: ~418 bp, plus primers]
+* Bacterial 16S rRNA v4 and v1-v2 regions   \[length: ~253 bp or ~300 bp, plus primers]
+* Fungal ITS1 and ITS2 regions              \[highly variable length]
 
 The libraries are sequenced on Illumina in 250bp paired-end or 300bp paired-end modes, resulting in reads with the following organization:  
   
-R1: [VariableLengthInsert][Forward_Primer][Sequence of interest ..............]\
-R2: [VariableLengthInsert][Reverse_Primer][Sequence of interest ..............]\
+R1: \[VariableLengthInsert]\[Forward_Primer]\[Sequence of interest ..............]\
+R2: \[VariableLengthInsert]\[Reverse_Primer]\[Sequence of interest ..............]\
 &nbsp;&nbsp;&nbsp;&nbsp;Note: We are currently using variable length inserts of 0 to 3 bp only for COI and 16S-v4 targets!  
   
 The sequences are or will soon be listed in the file [amplicon_sequences.txt](amplicon_sequences.txt).  
@@ -106,7 +106,7 @@ This is the core portion of the workflow.
   
 The fully annotated analysis steps and commands are available at [16S_rRNA_and COI_amplicon_workflow.md](16S_rRNA_and COI_amplicon_workflow.md).  
   
-Soon, you will find here exact sets of commands that have been successfully used with real data!  
+Soon, you will find here sets of commands that have been successfully used with real data!  
     
 &nbsp;  
   
