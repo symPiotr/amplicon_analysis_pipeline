@@ -86,11 +86,21 @@ For COI: ??? CCHGAYATRGCHTTYCCHCG **Sequence_of_interest_of_approx_418bp** TGRTT
 We want to keep only the middle portion... and only when it is of the correct length! We can use Regular Expressions and **grep** + **sed** to combine size filtering and primer trimming.  
 The fact that the sequence in fasta format is often broken up across many lines could be a challenge... but we've taken care of that in the previous step (parameter -fasta_width)!. Another challenge could be degenerate bases in primer sequences... but they follow [IUPAC codes](https://www.bioinformatics.org/sms/iupac.html) and we can easily convert degenerate bases (for example Y or M), into search terms (\[TC], \[AC]). Now would you construct REGEX search terms to capture the primers and variable-length inserts at the same time?  
   
-Here, I am using **grep** to only extract the sequences with correct primer seqs and correct length, followed by another **grep** that excludes lines with two dashes (possibly inserted by the first instance of grep, depending on the version), and then **sed** to trim the primers and any inserts from V4 contigs. 
+Here, I am using **grep** to only extract the sequences with correct primer seqs and correct length, followed by another **grep** that excludes lines with two dashes (possibly inserted by the first instance of grep, depending on the version), and then **sed** to trim the primers and any inserts. 
 ```
+##### 16S rRNA - V4 region #####
 egrep -B 1 "GTG[TC]CAGC[CA]GCCGCGGTAA.{250,260}ATTAGA[AT]ACCC[CGT][ACGT]GTAGTCC" all_samples.fasta | egrep -v "^\-\-$" |
-sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//' > all_samples_trimmed.fasta
+sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//' > all_samples_trimmed.fasta   
+
+##### 16S rRNA - V1-V2 region #####
+egrep -B 1 "AG[AC]GTT[TC]GAT[TC][AC]TGGCTCAG.{250,350}ACTCCTACGGGAGGCAGCA" all_samples.fasta | egrep -v "^\-\-$" |
+sed -E 's/.*AG[AC]GTT[TC]GAT[TC][AC]TGGCTCAG//; s/ACTCCTACGGGAGGCAGCA.*//' > all_samples_trimmed.fasta   
+  
+##### COI - product amplified using BF3-BR2 primers #####
+egrep -B 1 "CC[ACT]GA[TC]AT[AG]GC[ACT]TT[TC]CC[ACT]CG.{400,430}TG[AG]TT[TC]TT[TC]GG[ACGT]CA[TC]CC[ACT]G" all_samples.fasta | egrep -v "^\-\-$" |
+sed -E 's/.*CC[ACT]GA[TC]AT[AG]GC[ACT]TT[TC]CC[ACT]CG//; s/TG[AG]TT[TC]TT[TC]GG[ACGT]CA[TC]CC[ACT]G.*//' > all_samples_trimmed.fasta   
 ```  
+  
 &nbsp;  
   
   
