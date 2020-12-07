@@ -149,22 +149,31 @@ Add information about the number of sequences corresponding to each zOTU to \"**
 add_values_to_zOTU_fasta.py zotu_table_wo_tax.txt zotus.fasta
 ```  
   
-Now, let's use usearch to do the clustering ....  
+Now, let's use usearch to do the clustering: 
 ```
 usearch -sortbysize new_zotus.fasta -fastaout new_zotus_sorted.fasta -minsize 2  
 usearch -cluster_otus new_zotus_sorted.fasta -otus all_samples_otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationship.txt  
 usearch -usearch_global all_samples.fasta -db all_samples_otus.fasta -strand plus -id 0.97 -otutabout otu_table_wo_tax.txt  
 ```
   
-And taxonomy. Will get back to this later.  
+And let's do the taxonomy on representative sequences. Again, our taxonomy assignment recommendation is likely to change very soon!
 ```
 parallel_assign_taxonomy_blast.py -i all_samples_otus.fasta -o assign_taxonomy_otu -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt   
 ```
+  
+&nbsp;  
+  
+### Putting all the results together
+At this stage, the biologically relevant pieces of information that we have generated are:  
+* The sequences of all zOTUs;  
+* Information on the abundance of each zOTU in each library;  
+* Info on the taxonomic classification of each zOTU;  
+* Info on zOTU - OTU relationship: which OTU each of the zOTUs got classified to?  
+* Same type of information for OTUs --- representative sequence, abundance, taxonomic classification...   
+We need to put the info together. Of course, there are many ways of doing this!
 
-
-
-
-### join otu tables in R (zotu_table/otu_table with taxonomic classification)
+During the last workshop, some of you tried combining the datasets in R. The set of commands is below (as received from Diego) ---  
+```
 R
 otu = read.table("otu_table_wo_tax.txt", head=T, comment.char="&", sep="\t")
 tax = read.table("all_samples_otus_tax_assignments.txt", head=F, sep="\t")
@@ -172,4 +181,9 @@ otu2=otu[order(otu[,1]),]
 tax2=tax[order(tax[,1]),]
 otu.tax = cbind(otu2, taxonomy=tax2$V2)
 write.table(otu.tax, "otu_table_tax.txt", quote=F, col.names=T, row.names=F, sep="\t")
-
+```  
+  
+In the meantime, Piotr did it in Ms Excel. That has worked well, but required much manual handling, which is prone to human error!
+  
+Another possibility is Python. I'll try to assemble the script that will combine the info into two tables... But in the meantime, you need to manage on your own. 
+  
