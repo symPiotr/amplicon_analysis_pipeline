@@ -59,7 +59,7 @@ Again, we can use **basename** command inside a **"for"** loop to do this for al
 ```
 for file in *fastq; do
     SampleName=`basename $file .fastq`
-    vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel "$SampleName"_ -fasta_width 0
+    vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel "$SampleName"._ -fasta_width 0
 done
 ```  
   
