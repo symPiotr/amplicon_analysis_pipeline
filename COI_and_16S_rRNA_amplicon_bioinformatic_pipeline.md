@@ -144,7 +144,7 @@ conda activate qiime1
 parallel_assign_taxonomy_blast.py -i zotus.fasta -o assign_taxonomy_asv -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt  
 ```   
   
-Here is another suboptimal approach: searching the sequences against the Ribosomal Database Project's (RDP) 16S rRNA training set, with plasmid spike-in sequences added, using **usearch sintax** tool. However, that dataset comprises primarily (exclusively?) cultured bacteria, and it doesn't do a good job classifying Wolbachia or other insect symbionts...
+Here is another suboptimal approach: searching the sequences against the Ribosomal Database Project's (RDP) 16S rRNA training set, with plasmid spike-in sequences added, using **usearch sintax** tool. However, that dataset comprises primarily (exclusively?) cultured bacteria, and it doesn't do a good job classifying Wolbachia or other insect symbionts...  
 ```
 usearch -sintax zotus.fasta -db /mnt/matrix/symbio/db/RDP_16S_Trainsets/rdp_16s_v16_spikeins.fa -tabbedout zotus_tax.txt -strand both -sintax_cutoff 0.5
 ```  
