@@ -1,0 +1,74 @@
+################################################################
+##### The protocol used on 18th Dec 2020 on insect COI data #####
+################################################################
+
+### Setting up working space, copying raw data files from the appropriate "split_data" directory, simplifying file names
+mkdir ~/20201218_pipeline/COI/
+cp /mnt/matrix/symbio/split_data/20200830_MiSeq/wasps/COI-BF3BR2_W_* ~/20201218_pipeline/COI/
+cd ~/20201218_pipeline/COI
+rename -f 's/COI-BF3BR2_W_//' *fastq
+
+
+### Assembling reads using pear, cleaning up
+for file in *_R1.fastq; do
+    SampleName=`basename $file _R1.fastq`
+    pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -n 410 -m 470 -q 30 -j 20
+done
+
+rm *unassembled* *discarded*
+rename -f 's/.assembled//' *fastq
+mkdir reads && mv *_R?.fastq reads/
+
+
+### Converting FASTQ to FASTA and changing sequence labels
+for file in *fastq; do
+    SampleName=`basename $file .fastq`
+    vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel "$SampleName"._ -fasta_width 0
+done
+
+
+### concatenating all FASTA files, cleaning up 
+cat *fasta > all_samples.fasta
+mkdir contigs
+mv *fast? contigs/ && mv contigs/all_samples.fasta .
+
+
+### Trimming primers
+egrep -B 1 "CC[ACT]GA[TC]AT[AG]GC[ACT]TT[TC]CC[ACT]CG.{400,430}TG[AG]TT[TC]TT[TC]GG[ACGT]CA[TC]CC[ACT]G" all_samples.fasta |
+egrep -v "^\-\-$" | sed -E 's/.*CC[ACT]GA[TC]AT[AG]GC[ACT]TT[TC]CC[ACT]CG//; s/TG[AG]TT[TC]TT[TC]GG[ACGT]CA[TC]CC[ACT]G.*//' > all_samples_trimmed.fasta   
+
+
+### Checking how many reads were lost during trimming! Not too bad: before 30366, after 30239!
+grep -c ">" all*
+
+
+### Dereplicating the data, removing singletons
+vsearch -derep_fulllength all_samples_trimmed.fasta -output all_samples_derep.fasta -sizeout -uc all_samples_derep_info.txt
+vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fasta -minsize 2
+
+
+### Identifying zOTUs, computing zOTU table
+usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout denoising_summary.txt
+usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table.txt
+
+
+### pick OTUs
+add_values_to_zOTU_fasta.py zotu_table.txt zotus.fasta
+usearch -sortbysize new_zotus.fasta -fastaout new_zotus_sorted.fasta -minsize 2  
+usearch -cluster_otus new_zotus_sorted.fasta -otus otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationships.txt  
+usearch -usearch_global all_samples.fasta -db otus.fasta -strand plus -id 0.97 -otutabout otu_table.txt  
+
+
+### assign taxonomy --- to zOTUs as well as OTUs. Then, simplify the output.
+vsearch --sintax zotus.fasta -db /mnt/matrix/symbio/db/MIDORI/MIDORI_with_tax_spikeins_endo_RDP.fasta -tabbedout zotus.tax -strand both -sintax_cutoff 0.5
+vsearch --sintax otus.fasta -db /mnt/matrix/symbio/db/MIDORI/MIDORI_with_tax_spikeins_endo_RDP.fasta -tabbedout otus.tax -strand both -sintax_cutoff 0.5
+sed -i 's/[dpcofgs]\://g' zotus.tax
+sed -i 's/[dpcofgs]\://g' otus.tax
+
+
+### combine various zOTU-related tables using Piotr's two shiny new scripts :)
+combine_zOTU_files.py zotu_table.txt zotus.tax zotus.fasta zotu_otu_relationships.txt
+combine_OTU_files.py otu_table.txt otus.tax otus.fasta
+
+
+### Look at the output files --- zotus_table_expanded.txt and otus_table_expanded.txt --- and enjoy!
