@@ -122,57 +122,62 @@ vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fa
 ### Denoising
 At this step, we want to use USEARCH's UNOISE algorithm for denoising our data: the identification of unique error-free genotypes (= zOTUs, ASVs), merging sequences with errors with these genotypes, and identification and removal of chimeric sequences.
 ```
-usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout unoise3.txt
+usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout denoising_summary.txt
 ```  
   
 Now, lets make zOTU table, containing information on how many times each of the zOTUs occurred in each of the libraries:  
 ```
-usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table_wo_tax.txt
+usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table.txt
 ```  
-  
-&nbsp;  
-  
-### Assign taxonomy
------- Work in progress!!! ------
-
-At this step, we want to compare zOTU sequences against a curated database in order to obtain IDs. As in the previous cases, there are several ways to go about this. At the moment, we do not have a solution that is perfect... but this is work in progress!
-
-&nbsp;  
-During the last week's workshop, for 16S-V4 data, it was recommended to use **parallel_assign_taxonomy_blast.py** script from qiime1 package. The problem for unusual datasets, such as insect microbiome samples, is that the tool provides the top blast hit for every sequence even when that hit is not very close at all... Then, you do want to be careful about the interpretation!
-```
-conda activate qiime1  
-parallel_assign_taxonomy_blast.py -i zotus.fasta -o assign_taxonomy_asv -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt  
-```   
-  
-Here is another suboptimal approach: searching the sequences against the Ribosomal Database Project's (RDP) 16S rRNA training set, with plasmid spike-in sequences added, using **usearch sintax** tool. However, that dataset comprises primarily (exclusively?) cultured bacteria, and it doesn't do a good job classifying Wolbachia or other insect symbionts...  
-```
-usearch -sintax zotus.fasta -db /mnt/matrix/symbio/db/RDP_16S_Trainsets/rdp_16s_v16_spikeins.fa -tabbedout zotus_tax.txt -strand both -sintax_cutoff 0.5
-```  
-  
-Once you combine the zOTU table and the taxonomy, you should have quite a good sense of the diversity in your sample. In fact, many pipelines stop at this stage.  
   
 &nbsp;  
   
 ### OTU picking and chimeras removal using ASV as input
 
-Add information about the number of sequences corresponding to each zOTU to \"**zotus.fasta**". For the subsequent steps to go as planned, that information need to be provided in a specific format... For now, Piotr wrote a lightweight script that takes two previously generated files --- **zotu_table_wo_tax.txt** and **zotus.fasta** --- and exports a new file, **new_zotus.fasta**, with the required info.
+Add information about the number of sequences corresponding to each zOTU to \"**zotus.fasta**". For the subsequent steps to go as planned, that information need to be provided in a specific format... For now, Piotr wrote a lightweight script that takes two previously generated files --- **zotu_table_wo_tax.txt** and **zotus.fasta** --- and exports a new file, **new_zotus.fasta**, with the required info.  
 ```
-add_values_to_zOTU_fasta.py zotu_table_wo_tax.txt zotus.fasta
+add_values_to_zOTU_fasta.py zotu_table.txt zotus.fasta
 ```  
   
-Now, let's use usearch to do the clustering: 
+Now, let's use usearch to do the clustering. First, we sort the recently output fasta; then, we do clustering; finally, we assign all sequences to the clusters and compute the OTU table.  
 ```
 usearch -sortbysize new_zotus.fasta -fastaout new_zotus_sorted.fasta -minsize 2  
-usearch -cluster_otus new_zotus_sorted.fasta -otus all_samples_otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationship.txt  
-usearch -usearch_global all_samples.fasta -db all_samples_otus.fasta -strand plus -id 0.97 -otutabout otu_table_wo_tax.txt  
+usearch -cluster_otus new_zotus_sorted.fasta -otus otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationships.txt  
+usearch -usearch_global all_samples.fasta -db otus.fasta -strand plus -id 0.97 -otutabout otu_table.txt  
 ```
   
-And let's do the taxonomy on representative sequences. Again, our taxonomy assignment recommendation is likely to change very soon!
-```
-parallel_assign_taxonomy_blast.py -i all_samples_otus.fasta -o assign_taxonomy_otu -r ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq.fasta -t ~/symbio/db/SILVA_138/SILVA-138-SSURef_full_seq_taxonomy.txt   
-```
+&nbsp;
   
+### Assign taxonomy
+
+At this step, we want to compare zOTU and OTU sequences against a curated sequence database in order to assign taxonomy. As in the previous cases, there are several ways to go about this: different tools, different databases, and different criteria. We think that one of the best ways is the function [**sintax**](https://www.drive5.com/usearch/manual/sintax_algo.html) implemented in **usearch** and **vsearch**, which does compute the probability of assignment to each taxonomic rank. This can be quite helpful when working with non-model organisms!   
+&nbsp;
+As reference databases, at the moment, we have successfully tested:  
+* for 16S rRNA, a modified [SILVA v. 138](https://www.arb-silva.de) database, with multiple unpublished Auchenorrhyncha sequences and our spike-in sequences added:  
+**/mnt/matrix/symbio/db/SILVA_138/SILVA_endo_spikeins_RDP.fasta**  
+* for insect COI, a modified [MIDORI](http://www.reference-midori.info/index.html) database, with some erroneus sequences removed, and Alphaproteobacterial and spike-in sequences added:  
+**/mnt/matrix/symbio/db/MIDORI/MIDORI_with_tax_spikeins_endo_RDP.fasta**  
+  
+Then, for 16S rRNA, you might want to use these commands to annotate your zOTU and representative OTU sequences ---  
+```
+vsearch --sintax zotus.fasta -db /mnt/matrix/symbio/db/SILVA_138/SILVA_endo_spikeins_RDP.fasta -tabbedout zotus.tax -strand both -sintax_cutoff 0.5
+vsearch --sintax otus.fasta -db /mnt/matrix/symbio/db/SILVA_138/SILVA_endo_spikeins_RDP.fasta -tabbedout otus.tax -strand both -sintax_cutoff 0.5
+```   
+&nbsp;
+And for COI, you might want to try these ---  
+```
+vsearch --sintax zotus.fasta -db /mnt/matrix/symbio/db/MIDORI/MIDORI_with_tax_spikeins_endo_RDP.fasta -tabbedout zotus.tax -strand both -sintax_cutoff 0.5
+vsearch --sintax otus.fasta -db /mnt/matrix/symbio/db/MIDORI/MIDORI_with_tax_spikeins_endo_RDP.fasta -tabbedout otus.tax -strand both -sintax_cutoff 0.5
+```   
+  
+In the output, you will find the confidence values of assignment at each taxonomic level, like here:    *d:Bacteria(1.00),p:Proteobacteria(1.00),c:Betaproteobacteria(0.92),o:Betaproteobacteria(0.92),f:Candidatus_Vidania(0.92),g:Vidania_endosymbiont_of_Dictyophara_multireticulata(0.89)*  
+We feel that the info about the taxonomic level, e.g. "d:", "p:"... makes the output a bit cluttered. You can remove it using **sed**:  
+```
+sed -i 's/[dpcofgs]\://g' zotus.tax
+sed -i 's/[dpcofgs]\://g' otus.tax
+```  
 &nbsp;  
+  
   
 ### Putting all the results together
 At this stage, the biologically relevant pieces of information that we have generated are:  
@@ -181,20 +186,13 @@ At this stage, the biologically relevant pieces of information that we have gene
 * Info on the taxonomic classification of each zOTU;  
 * Info on zOTU - OTU relationship: which OTU each of the zOTUs got classified to?  
 * Same type of information for OTUs --- representative sequence, abundance, taxonomic classification...   
-We need to put the info together. Of course, there are many ways of doing this!
-
-During the last workshop, some of you tried combining the datasets in R. The set of commands is below (as received from Diego) ---  
+  
+We need to put the info together. Of course, there are many ways of doing this! Piotr has spent many years doing this in Excel, which required lots of manual effort and was prone to human error. Diego had suggested doing this in R. But an easy way would be using the script that Piotr has just written:  
 ```
-R
-otu = read.table("otu_table_wo_tax.txt", head=T, comment.char="&", sep="\t")
-tax = read.table("all_samples_otus_tax_assignments.txt", head=F, sep="\t")
-otu2=otu[order(otu[,1]),]
-tax2=tax[order(tax[,1]),]
-otu.tax = cbind(otu2, taxonomy=tax2$V2)
-write.table(otu.tax, "otu_table_tax.txt", quote=F, col.names=T, row.names=F, sep="\t")
+combine_zOTU_files.py zotu_table.txt zotus.tax zotus.fasta zotu_otu_relationships.txt
 ```  
   
-In the meantime, Piotr did it in Ms Excel. That has worked well, but required much manual handling, which is prone to human error!
+The output, **zotu_table_expanded.txt**, should contain all the info that you may need to start focusing on the biology!  
   
-Another possibility is Python. I'll try to assemble the script that will combine the info into two tables... But in the meantime, you need to manage on your own. 
+  
   
