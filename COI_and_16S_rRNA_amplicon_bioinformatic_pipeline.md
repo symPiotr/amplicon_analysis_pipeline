@@ -187,13 +187,15 @@ At this stage, the biologically relevant pieces of information that we have gene
 * Info on zOTU - OTU relationship: which OTU each of the zOTUs got classified to?  
 * Same type of information for OTUs --- representative sequence, abundance, taxonomic classification...   
   
-We need to put the info together. Of course, there are many ways of doing this! Piotr has spent many years doing this in Excel, which required lots of manual effort and was prone to human error. Diego had suggested doing this in R. But an easy way would be using the script that Piotr has just written:  
+We need to put the info together. Of course, there are many ways of doing this! Piotr has spent many years doing this in Excel, which required lots of manual effort and was prone to human error. Diego had suggested doing this in R. But an easy way would be using the two scripts that Piotr has just written, [combine_zOTU_files.py](combine_zOTU_files.py) and [combine_OTU_files.py](combine_OTU_files.py).  
 ```
 combine_zOTU_files.py zotu_table.txt zotus.tax zotus.fasta zotu_otu_relationships.txt
 combine_OTU_files.py otu_table.txt otus.tax otus.fasta
 ```  
   
-The output files, **zotu_table_expanded.txt** and **otu_table_expanded.txt**, should contain all the info that you may need to start focusing on the biology :) Enjoy!
+The output files, **zotu_table_expanded.txt** and **otu_table_expanded.txt**, should contain all the info that you may need to start focusing on the biology :)
+  
+Enjoy!  
   
   
   
