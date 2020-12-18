@@ -106,7 +106,9 @@ This is the core portion of the workflow.
   
 The fully annotated analysis steps and commands are available at [COI_and_16S_rRNA_amplicon_bioinformatic_pipeline.md](COI_and_16S_rRNA_amplicon_bioinformatic_pipeline.md).  
   
-Soon, you will find here sets of commands that have been successfully used with real data!  
+Here are some complete sets of commands that have been successfully used with real data. After ensuring that you are working on the right sets of files, you should be able to copy-and-paste into your terminal most of the commands... but do this at your own risk!  
+  
+* Pipeline for [16S rRNA v4 region for some wasps, successfully run on 2020-12-18 on fsm](20201218_16S-rRNA-v4_pipeline.txt). 
     
 &nbsp;  
   
