@@ -81,10 +81,10 @@ total 8436000
 -r--r--r-- 1 piotr.lukasik symbio   5205965 Sep 29 15:05 A-CRYFAG1_S55_L001_R2_001.fastq.gz
 ```  
   
-Information about the nature of the samples is generally available within the Symbiosis Evolution Group's SharePoint "Methods" folders. We are working on consolidating the sample info into a database.  
+Information about the nature of the samples is generally available within the Symbiosis Evolution Group's SharePoint "Methods" folders. We are working on consolidating the sample info into a database. You will find more info here soon!  
 &nbsp;  
   
-You may not be accessing these raw data often. **The first step in our pipeline comprises breaking up amplicon sequencing datasets into batches corresponding to different targets.** That way, instead of the original \*\_R1.fastq.gz and \*\_R2.fastq.gz files, for each sample we get several pairs of files corresponding to different amplification targets. For example, instead of a single \*\_R1_* file for the sample "W_377" in one of the recent runs, we have five files:  
+The majority of the *fastq.gz files comprises read corresponding to different targets amplified from the same sample --- but generally, you want to be analyzing the reads corresponding to only one target at a time! Hence, **the first step in our pipeline comprises breaking up amplicon sequencing datasets into batches corresponding to different targets.** Instead of the original \*_R1.fastq.gz and \*_R2.fastq.gz files, for each sample, we want to get several pairs of files corresponding to different amplification targets. For example, instead of a single forward read file for the sample "W_377" in one of the recent runs, we have five files:  
 ```
 piotr.lukasik@fsm:~/splitting/split$ ls -lh *_W_377_R1*
 -rw-r--r-- 1 piotr.lukasik users 2.2M Sep 30 10:43 16S-V1V2_W_377_R1.fastq
@@ -93,10 +93,10 @@ piotr.lukasik@fsm:~/splitting/split$ ls -lh *_W_377_R1*
 -rw-r--r-- 1 piotr.lukasik users  81K Sep 30 10:43 ITS2_W_377_R1.fastq
 -rw-r--r-- 1 piotr.lukasik users 410K Sep 30 10:43 ITS1a_W_377_R1.fastq
 ```  
-These split data are generally available within **/mnt/matrix/symbio/split_data** folder, but until the script is freely available, you'll want to make sure that this is the case. **Please talk to Piotr!**  
-  
-Details of the splitting script and approach will soon be available at [https://github.com/symPiotr/split_amplicon_libs](https://github.com/symPiotr/split_amplicon_libs).  
- 
+... plus another five corresponding to the reverse read! Some of these split data are available within **/mnt/matrix/symbio/split_data** folder. If this is not the case with your data, you can do the splitting yourself using Piotr's [**split_amplicon_libs.py** script, described at https://github.com/symPiotr/split_amplicon_libs](https://github.com/symPiotr/split_amplicon_libs).  
+You can also just talk to Piotr :)   
+&nbsp;  
+One way or another, before proceeding with the next steps of the analysis, for each sample, you want to have files corresponding to a single target only, \*R1.fastq and \*R2.fastq. Copying them all to your working directory probably makes sense!  
     
 &nbsp;  
   
