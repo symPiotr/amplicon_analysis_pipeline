@@ -3,13 +3,16 @@
 import sys, re
 
 if len(sys.argv) != 5:
-	sys.exit('This script combines info on zotus from several files, outputting "zotu_table_expanded.txt"\n'
+	sys.exit('This script combines info about zotus from several files, outputting "zotu_table_expanded.txt"\n'
+	         'It is intended as a part of the Symbiosis Evolution Group`s amplicon analysis pipeline,\n'
+	         'as described on https://github.com/symPiotr/amplicon_analysis_pipeline. Author: Piotr Łukasik, 2020-21\n' 
 	         'Usage: ./combine_zOTU_files.py <zOTU_count_table> <zOTU_taxonomy> <zOTU_fasta> <zOTU_OTU_relationships>\n'
 	         'For example: ./combine_zOTU_files.py zotu_table.txt zotus.tax zotus.fasta zotu_otu_relationships.txt\n')
 
 Script, zOTU_counts, zOTU_tax, zOTU_fasta, zOTU_OTU_relationships = sys.argv
 
 ##### Setting names of output files
+print("------- combine_zOTU_files.py v. 1.1, Piotr Łukasik, 12-Jan-2021 -------")
 Output_table = "zotu_table_expanded.txt"
 
 
@@ -19,6 +22,7 @@ zOTU_dict = {}
 
 
 ##### Opening zOTU table
+print("Opening zOTU table.................... ", end="")
 COUNTS = open(zOTU_counts, "r")
 
 for line in COUNTS:
@@ -30,24 +34,30 @@ for line in COUNTS:
         zOTU_dict[LINE[0]] = [LINE[1:]]
 
 COUNTS.close()
-
+print("OK!")
 
 
 ##### Adding taxonomy info to DICT
+print("Adding taxonomy info.................. ", end="")
 TAX = open(zOTU_tax, "r")
 
 for line in TAX:
     LINE = line.strip().split()
+    print
     if LINE[0] in zOTU_list:
-        zOTU_dict[LINE[0]].append(LINE[1])
+        if len(LINE) > 1:
+            zOTU_dict[LINE[0]].append(LINE[1])
+        else:
+            zOTU_dict[LINE[0]].append("unassigned")
     else:
         print('FATAL ERROR! Taxonomy file contains zOTUs that are not in zOTU count table! ---', LINE[0])
         sys.exit()
 
 TAX.close()
-
+print("OK!")
 
 ##### Adding sequences from the FASTA file to DICT
+print("Adding sequences...................... ", end="")
 FASTA = open(zOTU_fasta, "r")
 Sequence = ''
 Seq_heading = FASTA.readline().strip().strip(">")
@@ -68,9 +78,10 @@ for line in FASTA:   # Copying the sequence (potentially spread across multiple 
 zOTU_dict[Seq_heading].append(Sequence) # Saves the final sequence (Seq_heading and Sequence) to a list
 
 FASTA.close()
-
+print("OK!")
 
 ##### Adding zOTU - OTU relationship info to DICT
+print("Adding zOTU classification info....... ", end="")
 RELS = open(zOTU_OTU_relationships, "r")
 
 for line in RELS:
@@ -81,22 +92,26 @@ for line in RELS:
         print('FATAL ERROR! Relationship file contains zOTUs that are not in zOTU count table! --- ', zOTU)
         sys.exit()
     
-    if LINE[1].startswith("otu") or LINE[1] == "noisy_chimera":
+    if LINE[1].startswith("otu"):
         zOTU_dict[zOTU].append(LINE[1])
-        
-    elif LINE[1].startswith("match"):
+    
+    elif  LINE[1] == "noisy_chimera" or LINE[1] == "perfect_chimera" or re.search("Chimera", LINE[2]) != None:
+        zOTU_dict[zOTU].append("Chimera")
+
+    elif LINE[1].startswith("match") and re.search("OTU\d+", LINE[2]) != None:
         OTU_ID = re.search("OTU\d+", LINE[2])[0].lower()
         zOTU_dict[zOTU].append(OTU_ID)
     
     else:
-        sys.exit('Relationship file contains a term that I have not considered:\n', line)
+        print(f"Relationship file contains a term that I have not considered:\n{line}")
+        sys.exit()
 
 RELS.close()
-
+print("OK!")
 
 
 ##### Outputting the Expanded Count Table
-
+print("Outputting data....................... ", end = "")
 OUTPUT_TABLE = open(Output_table, "w")
 
 print("OTU_ID", "OTU_assignment", "Taxonomy", "Sequence", "Total", sep = "\t", end = "\t", file = OUTPUT_TABLE)
@@ -120,5 +135,5 @@ for zOTU in zOTU_list:
 
 OUTPUT_TABLE.close()
 
-
-print(f"Script executed successfully.Output --- {Output_table}\nEnjoy! Piotr :)")
+print("OK!")
+print(f"Script executed successfully. Output --- {Output_table}\nEnjoy :)")
