@@ -49,7 +49,7 @@ vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fa
 
 ### Identifying zOTUs, computing zOTU table
 usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout denoising_summary.txt
-usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table.txt
+usearch -otutab all_samples_trimmed.fasta -zotus zotus.fasta -otutabout zotu_table.txt
 
 
 ### pick OTUs
