@@ -42,7 +42,6 @@ TAX = open(zOTU_tax, "r")
 
 for line in TAX:
     LINE = line.strip().split()
-    print
     if LINE[0] in zOTU_list:
         if len(LINE) > 1:
             zOTU_dict[LINE[0]].append(LINE[1])
@@ -134,5 +133,5 @@ for zOTU in zOTU_list:
 
 OUTPUT_TABLE.close()
 
-print("OK!")
+print("OK!\n")
 print(f"Script executed successfully. Output --- {Output_table}\nEnjoy :)")
