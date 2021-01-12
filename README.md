@@ -108,7 +108,7 @@ The fully annotated analysis steps and commands are available at [COI_and_16S_rR
   
 Here are some complete sets of commands that have been successfully used with real data. After ensuring that you are working on the right sets of files, you should be able to copy-and-paste into your terminal most of the commands... but do this at your own risk!  
   
-* Data analysis pipeline for [16S rRNA v4 region for some wasps, successfully run on 2020-12-18 on fsm](20201218_16S-rRNA-v4_pipeline.txt). 
+* Data analysis pipeline for [16S rRNA v4 region for some flies, successfully run on 2021-01-12 on fsm](20210112_16S-rRNA-v4_pipeline.txt). 
 * Data analysis pipeline for [COI for some wasps, successfully run on 2020-12-18 on fsm](20201218_Wasp_COI_pipeline.txt).
     
 &nbsp;  
