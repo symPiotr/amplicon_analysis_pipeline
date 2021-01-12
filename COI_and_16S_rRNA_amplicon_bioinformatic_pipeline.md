@@ -12,7 +12,7 @@ Start from copying all files to your working directory:
 ```
 cp SourceDirectory/16S-V4*fastq WorkingDirectory/`  
 ```    
-Before proceeding, consider simplifying file names. For example, perhaps you can remove the "16S-v4_P_" portion of the file names, using *rename* command or another approach? When using *rename*, make sure that the command works before committing!
+Before proceeding, consider simplifying file names. For example, perhaps you can remove the "16S-V4_P_" portion of the file names, only leaving the meaningful bits, using *rename* command or another approach? When using *rename*, make sure that the command works before committing!
 ```
 rename -n 's/16S-V4_P_//' *fastq
 rename -f 's/16S-V4_P_//' *fastq
