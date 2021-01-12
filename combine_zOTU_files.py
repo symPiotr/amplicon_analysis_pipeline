@@ -2,19 +2,18 @@
 
 import sys, re
 
+print("---------- combine_zOTU_files.py v. 1.1, Piotr Łukasik, 12-Jan-2021 ----------\n")
+
 if len(sys.argv) != 5:
-	sys.exit('This script combines info about zotus from several files, outputting "zotu_table_expanded.txt"\n'
-	         'It is intended as a part of the Symbiosis Evolution Group`s amplicon analysis pipeline,\n'
-	         'as described on https://github.com/symPiotr/amplicon_analysis_pipeline. Author: Piotr Łukasik, 2020-21\n' 
+	sys.exit("This script combines info about zOTUs from several files produced by the Symbiosis Evolution Group's amplicon analysis pipeline.\n"
+	         "It is intended as a part of the workflow described at https://github.com/symPiotr/amplicon_analysis_pipeline.\n\n"
 	         'Usage: ./combine_zOTU_files.py <zOTU_count_table> <zOTU_taxonomy> <zOTU_fasta> <zOTU_OTU_relationships>\n'
 	         'For example: ./combine_zOTU_files.py zotu_table.txt zotus.tax zotus.fasta zotu_otu_relationships.txt\n')
 
 Script, zOTU_counts, zOTU_tax, zOTU_fasta, zOTU_OTU_relationships = sys.argv
 
 ##### Setting names of output files
-print("------- combine_zOTU_files.py v. 1.1, Piotr Łukasik, 12-Jan-2021 -------")
 Output_table = "zotu_table_expanded.txt"
-
 
 ##### Setting up the key arrays --- LIST for keeping sequences in order, and DICT for managing sequence info
 zOTU_list = []
