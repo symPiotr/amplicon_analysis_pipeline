@@ -1,11 +1,14 @@
 #! /usr/bin/env python3
 
+print("---------- combine_OTU_files.py v. 1.1, Piotr Łukasik, 12-Jan-2021 ----------\n")
+
 import sys, re
 
 if len(sys.argv) != 4:
-	sys.exit('This script combines info on otus from several files, outputting "otu_table_expanded.txt"\n'
-	         'Usage: ./combine_OTU_files.py <OTU_count_table> <OTU_taxonomy> <OTU_fasta>\n'
-	         'For example: ./combine_OTU_files.py otu_table.txt otus.tax otus.fasta\n')
+	sys.exit("This script combines info about OTUs from several files produced by the Symbiosis Evolution Group's amplicon analysis pipeline.\n"
+	         "It is intended as a part of the workflow described at https://github.com/symPiotr/amplicon_analysis_pipeline.\n\n"
+	         "Usage: ./combine_OTU_files.py <OTU_count_table> <OTU_taxonomy> <OTU_fasta>\n"
+	         "For example: ./combine_OTU_files.py otu_table.txt otus.tax otus.fasta\n")
 
 Script, OTU_counts, OTU_tax, OTU_fasta = sys.argv
 
@@ -19,6 +22,7 @@ OTU_dict = {}
 
 
 ##### Opening OTU table
+print("Opening OTU table..................... ", end="")
 COUNTS = open(OTU_counts, "r")
 
 for line in COUNTS:
@@ -30,24 +34,30 @@ for line in COUNTS:
         OTU_dict[LINE[0]] = [LINE[1:]]
 
 COUNTS.close()
-
+print("OK!")
 
 
 ##### Adding taxonomy info to DICT
+print("Adding taxonomy info.................. ", end="")
 TAX = open(OTU_tax, "r")
 
 for line in TAX:
     LINE = line.strip().split()
     if LINE[0] in OTU_list:
-        OTU_dict[LINE[0]].append(LINE[1])
+        if len(LINE) > 1:
+            OTU_dict[LINE[0]].append(LINE[1])
+        else:
+            OTU_dict[LINE[0]].append("unassigned")
     else:
-        print('FATAL ERROR! Taxonomy file contains OTUs that are not in OTU count table! ---', LINE[0])
+        print('FATAL ERROR! Taxonomy file contains zOTUs that are not in zOTU count table! ---', LINE[0])
         sys.exit()
 
 TAX.close()
+print("OK!")
 
 
 ##### Adding sequences from the FASTA file to DICT
+print("Adding sequences...................... ", end="")
 FASTA = open(OTU_fasta, "r")
 Sequence = ''
 Seq_heading = FASTA.readline().strip().strip(">")
@@ -68,11 +78,11 @@ for line in FASTA:   # Copying the sequence (potentially spread across multiple 
 OTU_dict[Seq_heading].append(Sequence) # Saves the final sequence (Seq_heading and Sequence) to a list
 
 FASTA.close()
-
+print("OK!")
 
 
 ##### Outputting the Expanded Count Table
-
+print("Outputting data....................... ", end = "")
 OUTPUT_TABLE = open(Output_table, "w")
 
 print("OTU_ID", "Taxonomy", "Sequence", "Total", sep = "\t", end = "\t", file = OUTPUT_TABLE)
@@ -95,6 +105,6 @@ for OTU in OTU_list:
     print("", file = OUTPUT_TABLE)
 
 OUTPUT_TABLE.close()
+print("OK!\n")
 
-
-print(f"Script executed successfully.Output --- {Output_table}\nEnjoy! Piotr :)")
+print(f"Script executed successfully. Output --- {Output_table}\nEnjoy! :)")
