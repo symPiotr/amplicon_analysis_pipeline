@@ -14,8 +14,8 @@ cp SourceDirectory/16S-V4*fastq WorkingDirectory/`
 ```    
 Before proceeding, consider simplifying file names. For example, perhaps you can remove the "16S-v4_P_" portion of the file names, using *rename* command or another approach? When using *rename*, make sure that the command works before committing!
 ```
-rename -n 's/16S-v4_P_//' *fastq
-rename -f 's/16S-v4_P_//' *fastq
+rename -n 's/16S-V4_P_//' *fastq
+rename -f 's/16S-V4_P_//' *fastq
 ```
 &nbsp;  
   
@@ -28,7 +28,7 @@ The general syntax that should work for 2x250 bp or 2x300 bp paired-end reads fo
 ```
 pear -f SampleName_R1.fastq -r SampleName_R2.fastq -o SampleName -v 15 -n 250 -m 400 -q 30 -j 20
 ```  
-For the COI region, you want to set larger -n & -m values, say, 400 and 470?  
+For the COI region, you want to set larger -n & -m values (min and max contig length), say, 400 and 470?  
   
 You want to execute this command on all the pairs of fastq files in your experiment. You can do it in many ways. For example, you can use **basename** command inside a **"for"** loop to extract all sample names and pass them on to PEAR, all in a single step:
 ```
