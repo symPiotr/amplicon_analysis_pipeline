@@ -30,12 +30,15 @@ The sequences are or will soon be listed in the file [amplicon_sequences.txt](am
 ### Section 2. Setting up working environment
 Before getting started on any analyses, make sure that you have access to all the necessary software.  
 If you work on the Institute cluster, you should have access as long as you have "/mnt/matrix/symbio/bin" in your PATH.  
-It may also help to activate "symbio" conda environment. Specifically, you want to be able to use:  
-  
+Specifically, you want to be able to use:  
+
 * pear  
 * usearch  
 * vsearch  
-* custom script [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py)  
+* custom scripts: [add_values_to_zOTU_fasta.py](add_values_to_zOTU_fasta.py), [combine_OTU_files.py](combine_OTU_files.py), [combine_zOTU_files.py](combine_zOTU_files.py)  
+  
+It may also help to activate "symbio" conda environment, which will facilitate access to software that you may want to be using for the subsequent steps:   
+  
 * qiime1  
 * R  
 
@@ -55,11 +58,14 @@ Our current bioinformatic pipeline follows these steps:
 * Denoise data - identify error-free genotypes (= ASVs, zOTUs). Compute zOTU table - check how many times each of the zOTUs is found in each of the libraries.  
 * Assign taxonomy to your zOTUs.  
 * Identify and remove chimeras, pick OTUs, compute OTU table.
+* Combine all the info in a convenient form
+
+We will soon be adding further steps:  
 * Template quantification using spike-ins
 * Filter reagent contaminants
 * Data interpretation, visualization, diversity analyses... a complicated piece that will be developed!  
   
-The outline of these steps is provided below. In most cases, you will be directed to detailed pipelines. At least, that's the plan :stuck_out_tongue: 
+The outline of these steps is or will be provided below. In most cases, you will be directed to detailed pipelines. At least, that's the plan :stuck_out_tongue: 
   
 &nbsp;  
   
