@@ -1,0 +1,91 @@
+################################################################
+##### The protocol used on 12th Jan 2021 on insect 16S - V4 data #####
+################################################################
+
+
+### Setting up working space, copying raw data files from the appropriate "raw_data" directory
+mkdir data_20210112_Phorids && cd data_20210112_Phorids/
+mkdir raw_data
+cp ~/symbio/raw_data/20200830_MiSeq/P-SNRLL5* raw_data/
+cp ~/symbio/raw_data/20200830_MiSeq/P-Neg-* raw_data/
+cd raw_data/
+gunzip *
+
+
+### Splitting up data into targets
+for file in *_R1_001.fastq; do
+    SampleName=`basename $file _L001_R1_001.fastq `
+    SampleNameMod=$(echo "$SampleName" | sed 's/-/_/g' | sed 's/_S[0-9]\+$//g')
+    echo $SampleNameMod "$SampleName"_L001_R1_001.fastq "$SampleName"_L001_R2_001.fastq >> sample_list.txt
+done
+mkdir ../split
+split_amplicon_libs.py /mnt/matrix/symbio/db/references/standard_primers.txt sample_list.txt ../split/
+cd ../split/16S-V4/
+
+### Simplifying file names
+rename -f 's/16S-V4_P_//' *fastq
+
+
+### Assembling reads using pear (assuming contig sizes of 285-305 bp), cleaning up
+for file in *_R1.fastq; do
+    SampleName=`basename $file _R1.fastq`
+    pear -f "$SampleName"_R1.fastq -r "$SampleName"_R2.fastq -o "$SampleName" -v 15 -q 30 -j 20 -n 285 -m 305 
+done
+
+rm *unassembled* *discarded*
+rename -f 's/.assembled//' *fastq
+mkdir reads && mv *_R?.fastq reads/
+
+
+### Converting FASTQ to FASTA and changing sequence labels
+for file in *fastq; do
+    SampleName=`basename $file .fastq`
+    vsearch -fastq_filter $SampleName.fastq -fastaout $SampleName.fasta -relabel "$SampleName"._ -fasta_width 0
+done
+
+### concatenating all FASTA files, cleaning up 
+cat *fasta > all_samples.fasta
+mkdir contigs
+mv *fast? contigs/ && mv contigs/all_samples.fasta .
+
+
+### Trimming primers
+egrep -B 1 "GTG[TC]CAGC[CA]GCCGCGGTAA.{250,260}ATTAGA[AT]ACCC[CGT][ACGT]GTAGTCC" all_samples.fasta | egrep -v "^\-\-$" |
+sed -E 's/.*GTG[TC]CAGC[CA]GCCGCGGTAA//; s/ATTAGA[AT]ACCC[ACGT][ACGT]GTAGTCC.*//' > all_samples_trimmed.fasta   
+
+
+### Checking how many reads were lost during trimming! Not too bad: before 189711, after 187590!
+grep -c ">" all*
+
+
+### Dereplicating the data, removing singletons
+vsearch -derep_fulllength all_samples_trimmed.fasta -output all_samples_derep.fasta -sizeout -uc all_samples_derep_info.txt
+vsearch -sortbysize all_samples_derep.fasta --output all_samples_derep_sorted.fasta -minsize 2
+
+
+### Identifying zOTUs, computing zOTU table
+usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout denoising_summary.txt
+
+### Mapping trimmed reads to zOTUs, constructing zotu table
+usearch -otutab all_samples_trimmed.fasta -zotus zotus.fasta -otutabout zotu_table.txt
+
+
+### pick OTUs
+add_values_to_zOTU_fasta.py zotu_table.txt zotus.fasta
+usearch -sortbysize new_zotus.fasta -fastaout new_zotus_sorted.fasta -minsize 2  
+usearch -cluster_otus new_zotus_sorted.fasta -otus otus.fasta -minsize 2 -relabel OTU -uparseout zotu_otu_relationships.txt  
+usearch -usearch_global all_samples.fasta -db otus.fasta -strand plus -id 0.97 -otutabout otu_table.txt  
+
+
+### assign taxonomy --- to zOTUs as well as OTUs. Then, simplify the output.
+vsearch --sintax zotus.fasta -db /mnt/matrix/symbio/db/SILVA_138/SILVA_endo_spikeins_RDP.fasta -tabbedout zotus.tax -strand both -sintax_cutoff 0.5
+vsearch --sintax otus.fasta -db /mnt/matrix/symbio/db/SILVA_138/SILVA_endo_spikeins_RDP.fasta -tabbedout otus.tax -strand both -sintax_cutoff 0.5
+sed -i 's/[dpcofgs]\://g' zotus.tax
+sed -i 's/[dpcofgs]\://g' otus.tax
+
+
+### combine various zOTU-related tables using Piotr's two shiny new scripts :)
+combine_zOTU_files.py zotu_table.txt zotus.tax zotus.fasta zotu_otu_relationships.txt
+combine_OTU_files.py otu_table.txt otus.tax otus.fasta
+
+### Look at the output files --- zotus_table_expanded.txt and otus_table_expanded.txt --- and enjoy!
