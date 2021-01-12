@@ -125,9 +125,9 @@ At this step, we want to use USEARCH's UNOISE algorithm for denoising our data: 
 usearch -unoise3 all_samples_derep_sorted.fasta -zotus zotus.fasta -tabbedout denoising_summary.txt
 ```  
   
-Now, lets make zOTU table, containing information on how many times each of the zOTUs occurred in each of the libraries:  
+Now, lets make zOTU table, containing information on how many times each of the zOTUs occurred in each of the libraries. We will do this by mapping trimmed reads to zOTUs.  
 ```
-usearch -otutab all_samples.fasta -zotus zotus.fasta -otutabout zotu_table.txt
+usearch -otutab all_samples_trimmed.fasta -zotus zotus.fasta -otutabout zotu_table.txt
 ```  
   
 &nbsp;  
